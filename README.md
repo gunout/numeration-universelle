@@ -471,6 +471,153 @@ Palette tricolore + accents par section :
 
 ---
 
+## 🎨 Thème tricolore
+
+### 🇫🇷 Palette de couleurs
+
+| Couleur | Code | Usage |
+|---------|------|-------|
+| 🔵 Bleu | `#002395` | Fond principal, accents |
+| ⚪ Blanc | `#ffffff` | Texte, cartes |
+| 🔴 Rouge | `#ed2939` | Accents chauds, Chinois, erreurs |
+| 🟡 Or | `#d4af37` | Résultats numériques |
+| 🔷 Cyan | `#06b6d4` | Section mathématique |
+| 🌸 Rose | `#ec4899` | Section cryptographique |
+
+### 🎨 Éléments visuels
+
+- Bande tricolore en haut du dashboard (4px)
+- Logo dégradé bleu → rouge
+- Barre décorative en bas de page
+- Glassmorphism subtil sur les cartes
+- Animations de survol (translateY -2px)
+
+---
+
+## 🗺️ Roadmap
+
+### ✅ Version 1.0 (actuelle)
+
+- [x] 21 systèmes de numération
+- [x] 22 analyses mathématiques
+- [x] 20+ empreintes cryptographiques
+- [x] Mode Nombre + Mode Mot
+- [x] Thème tricolore
+- [x] Presse-papier par carte
+- [x] Responsive
+
+### 🚧 Version 1.1 (planifiée)
+
+- [ ] Export JSON des analyses
+- [ ] Export PNG du dashboard
+- [ ] Partage d'URL avec paramètres
+- [ ] Mode sombre / clair toggle
+- [ ] Historique persistant amélioré
+- [ ] Comparaison de 2 nombres
+
+### 🔮 Version 2.0 (vision)
+
+- [ ] Numérations supplémentaires : Maya, Babylonienne, Égyptienne
+- [ ] Cryptographie avancée : bcrypt (WASM), Argon2 (WASM), Ed25519
+- [ ] Calcul symbolique : dérivées, intégrales
+- [ ] PWA : installable, hors-ligne
+- [ ] API publique : endpoint REST
+- [ ] Plugin VSCode
+
+---
+
+## 🤝 Contribution
+
+Les contributions sont **chaleureusement bienvenues** !
+
+1. **Fork** le projet
+2. **Créer** une branche : `git checkout -b feature/ma-fonctionnalite`
+3. **Commit** : `git commit -m "Ajout : ma fonctionnalité"`
+4. **Push** : `git push origin feature/ma-fonctionnalite`
+5. **Ouvrir** une Pull Request
+
+### 📋 Guidelines
+
+- ✅ **Code lisible** : commenter les fonctions complexes
+- ✅ **Tests** : ajouter des vecteurs de test pour les nouveaux algorithmes
+- ✅ **Style** : indentation 2 espaces, camelCase
+- ✅ **Commits** : messages clairs et concis
+- ❌ **Pas de dépendance externe** (le projet doit rester autonome)
+- ❌ **Pas de tracking** (analytics, cookies)
+
+### 🐛 Signaler un bug
+
+Ouvrir une issue avec :
+
+- Description du problème
+- Étapes de reproduction
+- Comportement attendu vs observé
+- Navigateur et version
+
+### 💡 Proposer une fonctionnalité
+
+Ouvrir une issue avec :
+
+- Description de la fonctionnalité
+- Cas d'usage
+- Exemples si possible
+
+---
+
+## 📜 Licence
+
+MIT License
+
+Copyright (c) 2025 [Votre Nom]
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+---
+
+## 👤 Auteur
+
+**Votre Nom**
+
+- GitHub : https://github.com/USER
+- LinkedIn : https://linkedin.com/in/USER
+- Email : email@example.com
+
+---
+
+## 🙏 Remerciements
+
+- **Inspirations** : Wolfram Alpha, dCode, CyberChef
+- **Références** : RFC 1321 (MD5), FIPS 180-4 (SHA-1/2), FIPS 202 (SHA-3), RFC 2104 (HMAC), RFC 4122 (UUID)
+- **Communauté** : MDN Web Docs, Stack Overflow
+- **Design** : Inspiration tricolore 🇫🇷
+
+---
+
+<div align="center">
+
+### ⭐ Si ce projet vous plaît, n'oubliez pas de lui donner une étoile ! ⭐
+
+**Fait avec ❤️ et beaucoup de ☕ en France 🇫🇷**
+
+</div>
+
+
 <div align="center">
 
 ### 🇫🇷 Gunout · 2026

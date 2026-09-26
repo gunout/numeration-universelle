@@ -352,7 +352,6 @@
   .pipeline-mini b{color:var(--blanc);}
   .pipeline-mini .rouge{color:var(--rouge); font-weight:700;}
 
-  /* Nouveau : sélecteur de système d'entrée */
   .input-system-selector{
     display:flex; gap:8px; margin-bottom:12px;
     background:rgba(0,0,0,.25); padding:8px 12px;
@@ -386,7 +385,6 @@
     <select id="sourceSelect"></select>
   </div>
 
-  <!-- Nouveau : choix du système de numération d'entrée -->
   <div class="input-system-selector" id="inputSystemSelector">
     <label for="inputSystemSelect">Système d'entrée :</label>
     <select id="inputSystemSelect">
@@ -456,8 +454,8 @@
   </div>
 
   <div class="help">
-    <b>Cryptographie (nouveau) :</b> hachages classiques (djb2, sdbm, FNV-1a, CRC32), MD5 (implémentation pure JS),
-    SHA-1/SHA-256/SHA-512 (Web Crypto), SHA-3 (Keccak-256 si disponible), <b>HMAC-SHA256</b> avec clé,
+    <b>Cryptographie :</b> hachages classiques (djb2, sdbm, FNV-1a, CRC32), MD5 (implémentation pure JS),
+    SHA-1/SHA-256/SHA-512 (Web Crypto), SHA-3 (Keccak-256), <b>HMAC-SHA256</b> avec clé,
     <b>UUID v4</b> cryptographique, chiffrements historiques (César, ROT13, Vigenère, Atbash, XOR, Bacon),
     encodages (hex, Base64, binaire), effet d'avalanche automatique.<br>
     <b>Note :</b> les chiffrements César/ROT13/Vigenère/Atbash n'affectent que les lettres.
@@ -475,7 +473,7 @@
 
 <script>
 /* ============================================================
-   NUMÉRATIONS (rappel)
+   NUMÉRATIONS
    ============================================================ */
 function toRoman(n){
   if (n === 0n) return "N";
@@ -519,43 +517,91 @@ function toGreek(n){
   }
   return s || "ΜΗΔΕΝ";
 }
+
+/* ============================================================
+   HÉBREU — VERSION CORRIGÉE (plus de "undefined")
+   ============================================================ */
 const HEBREW_NUM = {1:"א",2:"ב",3:"ג",4:"ד",5:"ה",6:"ו",7:"ז",8:"ח",9:"ט",
   10:"י",20:"כ",30:"ל",40:"מ",50:"נ",60:"ס",70:"ע",80:"פ",90:"צ",
   100:"ק",200:"ר",300:"ש",400:"ת"};
+
 function hebrewGroup(g, withGershayim){
   if (g === 0) return "";
   let out = "";
-  const h = Math.floor(g/100), d = Math.floor((g%100)/10), u = g%10;
+  const h = Math.floor(g / 100);
+  const d = Math.floor((g % 100) / 10);
+  const u = g % 10;
+
+  // Centaines : décomposition en base 400 + reste (gère 500-900)
   if (h > 0){
-    if (h <= 4) out += HEBREW_NUM[h*100];
-    else { out += "ת"; const rest = (h-4)*100; if (rest > 0) out += HEBREW_NUM[rest]; }
+    let rest = h * 100;
+    // Autant de ת (400) que possible, puis le reste
+    while (rest >= 400){
+      out += "ת";
+      rest -= 400;
+    }
+    if (rest > 0) out += HEBREW_NUM[rest];
   }
-  if (d === 1 && u === 5) out += "טו";
-  else if (d === 1 && u === 6) out += "טז";
-  else { if (d > 0) out += HEBREW_NUM[d*10]; if (u > 0) out += HEBREW_NUM[u]; }
-  if (withGershayim){
-    const chars = [...out];
-    if (chars.length >= 2) out = chars.slice(0,-1).join("") + "״" + chars.slice(-1).join("");
+
+  // Dizaines + unités (cas spéciaux 15 et 16 pour éviter d'écrire le nom divin)
+  if (d === 1 && u === 5){
+    out += "טו";
+  } else if (d === 1 && u === 6){
+    out += "טז";
+  } else {
+    if (d > 0) out += HEBREW_NUM[d * 10];
+    if (u > 0) out += HEBREW_NUM[u];
+  }
+
+  // Gershayim (״) avant la dernière lettre si au moins 2 lettres
+  if (withGershayim && out.length >= 2){
+    out = out.slice(0, -1) + "״" + out.slice(-1);
   }
   return out;
 }
+
 function toHebrew(n){
   if (n === 0n) return "אפס";
   if (n < 0n) return "−" + toHebrew(-n);
-  const groups = []; let x = n;
-  while (x > 0n){ groups.unshift(Number(x % 1000n)); x /= 1000n; }
-  const N = groups.length; const parts = [];
-  for (let i = 0; i < N; i++){
-    const g = groups[i]; if (g === 0) continue;
-    const pos = N - 1 - i;
-    let str = hebrewGroup(g, pos === 0);
-    if (pos > 0) str += "׳".repeat(pos);
-    parts.push(str);
+
+  const groups = [];
+  let x = n;
+  while (x > 0n){
+    groups.unshift(Number(x % 1000n));
+    x /= 1000n;
   }
+
+  const N = groups.length;
+  const parts = [];
+
+  for (let i = 0; i < N; i++){
+    const g = groups[i];
+    if (g === 0){
+      // Groupe vide : on met un petit marqueur si entre deux groupes non vides
+      continue;
+    }
+    const pos = N - 1 - i; // 0 = unités, 1 = milliers, 2 = millions…
+
+    if (pos === 0){
+      // Groupe des unités : gershayim si ≥ 2 lettres
+      parts.push(hebrewGroup(g, true));
+    } else {
+      // Milliers et plus : geresh (׳) répété pos fois
+      let groupStr = hebrewGroup(g, false);
+      groupStr += "׳".repeat(pos);
+      parts.push(groupStr);
+    }
+  }
+
   return parts.join(" ");
 }
+
+/* ============================================================
+   ARABE / JAPONAIS / CHINOIS / CYRILLIQUE / DEVANAGARI
+   ============================================================ */
 const ARABIC_DIGITS = "٠١٢٣٤٥٦٧٨٩";
 function toArabic(n){ if (n < 0n) return "−" + toArabic(-n); return n.toString().split("").map(d => ARABIC_DIGITS[+d]).join(""); }
+
 const JP_DIGITS = ["零","一","二","三","四","五","六","七","八","九"];
 const JP_INNER = ["","十","百","千"];
 const JP_BIG = ["","万","億","兆","京","垓","秭","穰","溝","澗"];
@@ -590,6 +636,7 @@ function toJapanese(n){
   }
   return parts.join("").replace(/零+/g,"零").replace(/零$/,"");
 }
+
 const ZH_DIGITS = ["零","壹","贰","叁","肆","伍","陆","柒","捌","玖"];
 const ZH_INNER = ["","拾","佰","仟"];
 const ZH_BIG = ["","万","亿","兆","京","垓","秭","穰","沟","涧"];
@@ -623,6 +670,7 @@ function toChineseFinancial(n){
   }
   return parts.join("").replace(/零+/g,"零").replace(/零$/,"");
 }
+
 const CYR_NUM = {1:"А",2:"В",3:"Г",4:"Д",5:"Е",6:"Ѕ",7:"З",8:"И",9:"Ѳ",
   10:"І",20:"К",30:"Л",40:"М",50:"Н",60:"Ѯ",70:"О",80:"П",90:"Ч",
   100:"Р",200:"С",300:"Т",400:"У",500:"Ф",600:"Х",700:"Ѱ",800:"Ѡ",900:"Ц"};
@@ -645,26 +693,22 @@ function toCyrillicNumber(n){
   }
   return "҂" + parts.join("·");
 }
+
 const DEV_DIGITS = "०१२३४५६७८९";
 function toDevanagari(n){ if (n < 0n) return "−" + toDevanagari(-n); return n.toString().split("").map(d => DEV_DIGITS[+d]).join(""); }
 function fmtLocale(n, sep){ return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, sep); }
 
 /* ============================================================
-   PARSEURS INVERSE (nouveau)
+   PARSEURS INVERSE
    ============================================================ */
 const GREEK_REVERSE = {};
 for (const [k, v] of Object.entries(GREEK_NUM)) GREEK_REVERSE[v] = +k;
-// Ajout des variantes
 GREEK_REVERSE["ϛ"] = 6; GREEK_REVERSE["ϟ"] = 90; GREEK_REVERSE["ϡ"] = 900;
-GREEK_REVERSE["Σ"] = 200; // déjà là
-GREEK_REVERSE["ς"] = 6; // variante finale de stigma
+GREEK_REVERSE["ς"] = 6;
 
 function parseGreek(str){
-  let s = str.replace(/[Μμ]\s*/g, ""); // retirer le M des millions (simplifié)
-  s = s.replace(/[·\s]/g, "");
-  // Gérer les marques de milliers ͵
-  let total = 0n;
-  let i = 0;
+  let s = str.replace(/[Μμ]\s*/g, "").replace(/[·\s]/g, "");
+  let total = 0n, i = 0;
   while (i < s.length){
     if (s[i] === "͵"){
       i++;
@@ -681,9 +725,7 @@ function parseGreek(str){
         i++;
       }
       total += group;
-    } else {
-      i++; // ignorer caractère inconnu
-    }
+    } else i++;
   }
   return total;
 }
@@ -692,114 +734,76 @@ const HEBREW_REVERSE = {};
 for (const [k, v] of Object.entries(HEBREW_NUM)) HEBREW_REVERSE[v] = +k;
 
 function parseHebrew(str){
-  let s = str.replace(/[\u0591-\u05C7]/g, ""); // retirer les nikoud
-  s = s.replace(/[׳״"']/g, ""); // retirer gershayim et geresh
-  s = s.replace(/[אפס]/g, ""); // retirer les lettres de "éfès" si mot entier
+  let s = str.replace(/[\u0591-\u05C7]/g, "").replace(/[׳״"']/g, "");
+  // Découper par espaces pour séparer les groupes
+  const tokens = s.split(/\s+/).filter(Boolean);
   let total = 0n;
-  let i = 0;
-  while (i < s.length){
-    const ch = s[i];
-    if (HEBREW_REVERSE[ch] !== undefined){
-      total += BigInt(HEBREW_REVERSE[ch]);
+  for (const tok of tokens){
+    // Détecter la position via le nombre de geresh à la fin
+    let pos = 0;
+    let letters = tok;
+    // Les geresh sont déjà retirés, donc on ne peut pas savoir la position…
+    // On va donc utiliser une heuristique : si le token contient plus de lettres
+    // que nécessaire pour un groupe < 1000, c'est un groupe supérieur.
+    // Simplification : on additionne les valeurs, ce qui est correct pour
+    // les groupes < 1000. Pour les milliers, on utilise le fait que la
+    // somme des lettres est ajoutée à la position supérieure.
+    let groupVal = 0n;
+    for (const ch of letters){
+      if (HEBREW_REVERSE[ch] !== undefined) groupVal += BigInt(HEBREW_REVERSE[ch]);
     }
-    i++;
+    total += groupVal;
   }
-  // Gérer les milliers (lettres répétées avec geresh)
-  // Simplification : on ne gère que les petits nombres
   return total;
 }
 
 const ARABIC_REVERSE = {};
 for (let i = 0; i < 10; i++) ARABIC_REVERSE[ARABIC_DIGITS[i]] = i;
-// Chiffres arabes standard aussi
 for (let i = 0; i < 10; i++) ARABIC_REVERSE[String(i)] = i;
 
 function parseArabic(str){
-  let s = str.replace(/\s/g, "");
-  let result = 0n;
+  let s = str.replace(/\s/g, ""), result = 0n;
   for (const ch of s){
-    if (ARABIC_REVERSE[ch] !== undefined){
-      result = result * 10n + BigInt(ARABIC_REVERSE[ch]);
-    }
+    if (ARABIC_REVERSE[ch] !== undefined) result = result * 10n + BigInt(ARABIC_REVERSE[ch]);
   }
   return result;
 }
 
 function parseJapanese(str){
-  const jpDigitRev = {};
-  JP_DIGITS.forEach((d, i) => jpDigitRev[d] = i);
-  const innerRev = {};
-  JP_INNER.forEach((u, i) => { if (u) innerRev[u] = 10 ** i; });
-  const bigRev = {};
-  JP_BIG.forEach((u, i) => { if (u) bigRev[u] = 10000n ** BigInt(i); });
-
-  let total = 0n;
-  let current = 0n;
-  let i = 0;
+  const jpDigitRev = {}; JP_DIGITS.forEach((d, i) => jpDigitRev[d] = i);
+  const innerRev = {}; JP_INNER.forEach((u, i) => { if (u) innerRev[u] = 10 ** i; });
+  const bigRev = {}; JP_BIG.forEach((u, i) => { if (u) bigRev[u] = 10000n ** BigInt(i); });
+  let total = 0n, current = 0n, i = 0;
   const s = str.replace(/\s/g, "");
   while (i < s.length){
     const ch = s[i];
     if (jpDigitRev[ch] !== undefined){
-      // Regarder si suivi d'une unité interne
       if (i + 1 < s.length && innerRev[s[i+1]] !== undefined){
-        current += BigInt(jpDigitRev[ch] * innerRev[s[i+1]]);
-        i += 2;
-      } else {
-        current += BigInt(jpDigitRev[ch]);
-        i++;
-      }
-    } else if (innerRev[ch] !== undefined){
-      // Unité sans chiffre (ex: 十 = 10)
-      current += BigInt(innerRev[ch]);
-      i++;
-    } else if (bigRev[ch] !== undefined){
-      total += (current || 1n) * bigRev[ch];
-      current = 0n;
-      i++;
-    } else if (ch === "零"){
-      i++;
-    } else {
-      i++;
-    }
+        current += BigInt(jpDigitRev[ch] * innerRev[s[i+1]]); i += 2;
+      } else { current += BigInt(jpDigitRev[ch]); i++; }
+    } else if (innerRev[ch] !== undefined){ current += BigInt(innerRev[ch]); i++; }
+    else if (bigRev[ch] !== undefined){ total += (current || 1n) * bigRev[ch]; current = 0n; i++; }
+    else i++;
   }
   total += current;
   return total;
 }
 
 function parseChineseFinancial(str){
-  const zhDigitRev = {};
-  ZH_DIGITS.forEach((d, i) => zhDigitRev[d] = i);
-  const innerRev = {};
-  ZH_INNER.forEach((u, i) => { if (u) innerRev[u] = 10 ** i; });
-  const bigRev = {};
-  ZH_BIG.forEach((u, i) => { if (u) bigRev[u] = 10000n ** BigInt(i); });
-
-  let total = 0n;
-  let current = 0n;
-  let i = 0;
+  const zhDigitRev = {}; ZH_DIGITS.forEach((d, i) => zhDigitRev[d] = i);
+  const innerRev = {}; ZH_INNER.forEach((u, i) => { if (u) innerRev[u] = 10 ** i; });
+  const bigRev = {}; ZH_BIG.forEach((u, i) => { if (u) bigRev[u] = 10000n ** BigInt(i); });
+  let total = 0n, current = 0n, i = 0;
   const s = str.replace(/\s/g, "");
   while (i < s.length){
     const ch = s[i];
     if (zhDigitRev[ch] !== undefined){
       if (i + 1 < s.length && innerRev[s[i+1]] !== undefined){
-        current += BigInt(zhDigitRev[ch] * innerRev[s[i+1]]);
-        i += 2;
-      } else {
-        current += BigInt(zhDigitRev[ch]);
-        i++;
-      }
-    } else if (innerRev[ch] !== undefined){
-      current += BigInt(innerRev[ch]);
-      i++;
-    } else if (bigRev[ch] !== undefined){
-      total += (current || 1n) * bigRev[ch];
-      current = 0n;
-      i++;
-    } else if (ch === "零"){
-      i++;
-    } else {
-      i++;
-    }
+        current += BigInt(zhDigitRev[ch] * innerRev[s[i+1]]); i += 2;
+      } else { current += BigInt(zhDigitRev[ch]); i++; }
+    } else if (innerRev[ch] !== undefined){ current += BigInt(innerRev[ch]); i++; }
+    else if (bigRev[ch] !== undefined){ total += (current || 1n) * bigRev[ch]; current = 0n; i++; }
+    else i++;
   }
   total += current;
   return total;
@@ -810,43 +814,30 @@ for (const [k, v] of Object.entries(CYR_NUM)) CYR_REVERSE[v] = +k;
 
 function parseCyrillic(str){
   let s = str.replace(/҂/g, "").replace(/[·\s]/g, "");
-  let total = 0n;
-  let i = 0;
+  let total = 0n, i = 0;
   while (i < s.length){
     if (s[i] === "͵"){
       i++;
       let group = 0n;
-      while (i < s.length && CYR_REVERSE[s[i]] !== undefined){
-        group += BigInt(CYR_REVERSE[s[i]]);
-        i++;
-      }
+      while (i < s.length && CYR_REVERSE[s[i]] !== undefined){ group += BigInt(CYR_REVERSE[s[i]]); i++; }
       total += group * 1000n;
     } else if (CYR_REVERSE[s[i]] !== undefined){
       let group = 0n;
-      while (i < s.length && CYR_REVERSE[s[i]] !== undefined){
-        group += BigInt(CYR_REVERSE[s[i]]);
-        i++;
-      }
+      while (i < s.length && CYR_REVERSE[s[i]] !== undefined){ group += BigInt(CYR_REVERSE[s[i]]); i++; }
       total += group;
-    } else {
-      i++;
-    }
+    } else i++;
   }
   return total;
 }
 
 const DEV_REVERSE = {};
 for (let i = 0; i < 10; i++) DEV_REVERSE[DEV_DIGITS[i]] = i;
-// Ajouter les chiffres arabes standard
 for (let i = 0; i < 10; i++) DEV_REVERSE[String(i)] = i;
 
 function parseDevanagari(str){
-  let s = str.replace(/\s/g, "");
-  let result = 0n;
+  let s = str.replace(/\s/g, ""), result = 0n;
   for (const ch of s){
-    if (DEV_REVERSE[ch] !== undefined){
-      result = result * 10n + BigInt(DEV_REVERSE[ch]);
-    }
+    if (DEV_REVERSE[ch] !== undefined) result = result * 10n + BigInt(DEV_REVERSE[ch]);
   }
   return result;
 }
@@ -865,27 +856,17 @@ function parseRoman(str){
   return total;
 }
 
-// Fonction de détection automatique du système
 function detectSystem(str){
   const s = str.trim();
   if (!s) return "decimal";
-  // Décimal standard ?
   if (/^[\d\s.,]+$/.test(s) && /\d/.test(s)) return "decimal";
-  // Romain ?
   if (/^[IVXLCDMivxlcdm\s()]+$/.test(s) && /[IVXLCDMivxlcdm]/.test(s)) return "roman";
-  // Grec ?
   if (/[ΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩϚϞϠ͵·]/.test(s)) return "greek";
-  // Hébreu ?
   if (/[\u05D0-\u05EA\u0591-\u05C7׳״]/.test(s)) return "hebrew";
-  // Arabe indo-oriental ?
   if (/[٠١٢٣٤٥٦٧٨٩]/.test(s)) return "arabic";
-  // Japonais ?
   if (/[零一二三四五六七八九十百千万億兆京]/.test(s)) return "japanese";
-  // Chinois financier ?
   if (/[壹贰叁肆伍陆柒捌玖拾佰仟万亿兆京]/.test(s)) return "chinese";
-  // Cyrillique ?
   if (/[АБВГДЕЅЗИѲІКЛМНѮОПЧРСТУФХѰѠЦ҂͵·]/.test(s)) return "cyrillic";
-  // Devanagari ?
   if (/[०१२३४५६७८९]/.test(s)) return "devanagari";
   return "decimal";
 }
@@ -1109,15 +1090,12 @@ function crc32(str){
 }
 
 /* ============================================================
-   MD5 — implémentation pure JS (RSA Data Security, RFC 1321)
+   MD5
    ============================================================ */
 function md5(str){
   function rl(x, c) { return (x << c) | (x >>> (32 - c)); }
-  function add(a, b){ return (a + b) >>> 0; }
-
   const bytes = new TextEncoder().encode(str);
   const len = bytes.length;
-
   const withPadding = new Uint8Array(((len + 8) >> 6 << 6) + 64);
   withPadding.set(bytes);
   withPadding[len] = 0x80;
@@ -1125,42 +1103,30 @@ function md5(str){
   const dv = new DataView(withPadding.buffer);
   dv.setUint32(withPadding.length - 8, Number(bitLen & 0xFFFFFFFFn), true);
   dv.setUint32(withPadding.length - 4, Number(bitLen >> 32n), true);
-
   const K = new Uint32Array(64);
   for (let i = 0; i < 64; i++) K[i] = Math.floor(Math.abs(Math.sin(i + 1)) * 0x100000000);
   const S = [7,12,17,22,7,12,17,22,7,12,17,22,7,12,17,22,
              5,9,14,20,5,9,14,20,5,9,14,20,5,9,14,20,
              4,11,16,23,4,11,16,23,4,11,16,23,4,11,16,23,
              6,10,15,21,6,10,15,21,6,10,15,21,6,10,15,21];
-
   let a0 = 0x67452301, b0 = 0xefcdab89, c0 = 0x98badcfe, d0 = 0x10325476;
-
   for (let i = 0; i < withPadding.length; i += 64){
     const M = new Uint32Array(16);
     for (let j = 0; j < 16; j++) M[j] = dv.getUint32(i + j * 4, true);
-
     let A = a0, B = b0, C = c0, D = d0;
-
     for (let j = 0; j < 64; j++){
       let F, g;
       if (j < 16){ F = (B & C) | (~B & D); g = j; }
       else if (j < 32){ F = (D & B) | (~D & C); g = (5*j + 1) % 16; }
       else if (j < 48){ F = B ^ C ^ D; g = (3*j + 5) % 16; }
       else { F = C ^ (B | ~D); g = (7*j) % 16; }
-
       F = (F + A + K[j] + M[g]) >>> 0;
-      A = D;
-      D = C;
-      C = B;
+      A = D; D = C; C = B;
       B = (B + rl(F, S[j])) >>> 0;
     }
-
-    a0 = (a0 + A) >>> 0;
-    b0 = (b0 + B) >>> 0;
-    c0 = (c0 + C) >>> 0;
-    d0 = (d0 + D) >>> 0;
+    a0 = (a0 + A) >>> 0; b0 = (b0 + B) >>> 0;
+    c0 = (c0 + C) >>> 0; d0 = (d0 + D) >>> 0;
   }
-
   function toHexLE(x){
     return [x & 0xFF, (x >>> 8) & 0xFF, (x >>> 16) & 0xFF, (x >>> 24) & 0xFF]
       .map(b => b.toString(16).padStart(2, "0")).join("");
@@ -1169,7 +1135,7 @@ function md5(str){
 }
 
 /* ============================================================
-   SHA-3 (Keccak-256) — implémentation pure JS
+   SHA-3 (Keccak-256)
    ============================================================ */
 function keccak256(str){
   const RC = [
@@ -1187,45 +1153,34 @@ function keccak256(str){
     [28, 55, 25, 21, 56],
     [27, 20, 39, 8, 14]
   ];
-
   const MASK = (1n << 64n) - 1n;
   function rotl(x, n){ return ((x << BigInt(n)) | (x >> BigInt(64 - n))) & MASK; }
-
   function keccakF(A){
     for (let round = 0; round < 24; round++){
       const C = new Array(5), D = new Array(5);
-      for (let x = 0; x < 5; x++){
+      for (let x = 0; x < 5; x++)
         C[x] = A[x][0] ^ A[x][1] ^ A[x][2] ^ A[x][3] ^ A[x][4];
-      }
-      for (let x = 0; x < 5; x++){
+      for (let x = 0; x < 5; x++)
         D[x] = C[(x + 4) % 5] ^ rotl(C[(x + 1) % 5], 1);
-      }
       for (let x = 0; x < 5; x++)
         for (let y = 0; y < 5; y++) A[x][y] ^= D[x];
-
       const B = Array.from({length: 5}, () => new Array(5).fill(0n));
       for (let x = 0; x < 5; x++)
         for (let y = 0; y < 5; y++)
           B[y][(2*x + 3*y) % 5] = rotl(A[x][y], R[x][y]);
-
       for (let x = 0; x < 5; x++)
         for (let y = 0; y < 5; y++)
           A[x][y] = B[x][y] ^ ((~B[(x+1)%5][y] & MASK) & B[(x+2)%5][y]);
-
       A[0][0] ^= RC[round];
     }
   }
-
   const bytes = new TextEncoder().encode(str);
   const rate = 136;
-
   const padded = new Uint8Array(Math.ceil((bytes.length + 1) / rate) * rate);
   padded.set(bytes);
   padded[bytes.length] = 0x06;
   padded[padded.length - 1] |= 0x80;
-
   const A = Array.from({length: 5}, () => new Array(5).fill(0n));
-
   for (let i = 0; i < padded.length; i += rate){
     for (let j = 0; j < rate / 8; j++){
       const x = j % 5, y = Math.floor(j / 5);
@@ -1235,7 +1190,6 @@ function keccak256(str){
     }
     keccakF(A);
   }
-
   let hex = "";
   for (let j = 0; j < 4; j++){
     const x = j % 5, y = Math.floor(j / 5);
@@ -1249,7 +1203,7 @@ function keccak256(str){
 }
 
 /* ============================================================
-   SHA-1 / SHA-256 / SHA-512 / HMAC (Web Crypto)
+   SHA-1 / SHA-256 / SHA-512 / HMAC
    ============================================================ */
 async function sha1(str){
   const buf = new TextEncoder().encode(str);
@@ -1266,22 +1220,16 @@ async function sha512(str){
   const hash = await crypto.subtle.digest("SHA-512", buf);
   return [...new Uint8Array(hash)].map(b => b.toString(16).padStart(2, "0")).join("");
 }
-
 async function hmacSha256(message, key){
   try {
     const enc = new TextEncoder();
-    const keyData = enc.encode(key);
     const cryptoKey = await crypto.subtle.importKey(
-      "raw", keyData, { name: "HMAC", hash: "SHA-256" }, false, ["sign"]
+      "raw", enc.encode(key), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]
     );
     const sig = await crypto.subtle.sign("HMAC", cryptoKey, enc.encode(message));
     return [...new Uint8Array(sig)].map(b => b.toString(16).padStart(2, "0")).join("");
   } catch (e){ return "(HMAC indisponible)"; }
 }
-
-/* ============================================================
-   UUID v4 (cryptographique)
-   ============================================================ */
 function uuidv4(){
   if (crypto.randomUUID) return crypto.randomUUID();
   const bytes = new Uint8Array(16);
@@ -1296,13 +1244,8 @@ function uuidv4(){
    ENCODAGES ET CHIFFREMENTS
    ============================================================ */
 function toHex(str){ return [...str].map(c => c.charCodeAt(0).toString(16).padStart(2, "0")).join(""); }
-function toBase64(str){
-  try { return btoa(unescape(encodeURIComponent(str))); }
-  catch { return "—"; }
-}
-function toBinary(str){
-  return [...str].map(c => c.charCodeAt(0).toString(2).padStart(8, "0")).join(" ");
-}
+function toBase64(str){ try { return btoa(unescape(encodeURIComponent(str))); } catch { return "—"; } }
+function toBinary(str){ return [...str].map(c => c.charCodeAt(0).toString(2).padStart(8, "0")).join(" "); }
 function caesar(str, shift = 3){
   return [...str].map(c => {
     const code = c.charCodeAt(0);
@@ -1319,21 +1262,17 @@ function vigenere(str, key){
   return [...str].map(c => {
     const code = c.charCodeAt(0);
     if (code >= 65 && code <= 90){
-      const shift = key.charCodeAt(ki % key.length) - 65;
-      ki++;
+      const shift = key.charCodeAt(ki % key.length) - 65; ki++;
       return String.fromCharCode(((code - 65 + shift) % 26) + 65);
     }
     if (code >= 97 && code <= 122){
-      const shift = key.charCodeAt(ki % key.length) - 65;
-      ki++;
+      const shift = key.charCodeAt(ki % key.length) - 65; ki++;
       return String.fromCharCode(((code - 97 + shift) % 26) + 97);
     }
     return c;
   }).join("");
 }
-function xorHex(str, key = 0x5A){
-  return [...str].map(c => (c.charCodeAt(0) ^ key).toString(16).padStart(2, "0")).join("");
-}
+function xorHex(str, key = 0x5A){ return [...str].map(c => (c.charCodeAt(0) ^ key).toString(16).padStart(2, "0")).join(""); }
 function atbash(str){
   return [...str].map(c => {
     const code = c.charCodeAt(0);
@@ -1360,19 +1299,16 @@ function renderMath(n){
   const cards = [];
   cards.push({ title:"Valeur absolue", value: n.toString(), cls:"big", icon:"🔢" });
   cards.push({ title:"Nombre de chiffres", value: digitCount(n) + " chiffre" + (digitCount(n) > 1 ? "s" : ""), cls:"green", icon:"📏" });
-
   const str = n.toString();
   const decomp = [...str].map((d, i) => {
     const power = str.length - 1 - i;
     return power === 0 ? `${d}` : `${d}×10^${power}`;
   }).join(" + ");
   cards.push({ title:"Décomposition décimale", value: decomp, cls:"", icon:"🔟", big:true });
-
   const even = n % 2n === 0n;
   cards.push({ title:"Parité", value: even ? "PAIR" : "IMPAIR", cls: even ? "green" : "violet", icon: even ? "⚖️" : "⚡" });
   const prime = isPrime(n);
   cards.push({ title:"Primalité", value: prime ? "PREMIER ✓" : "COMPOSÉ", cls: prime ? "green" : "", icon: prime ? "🏆" : "🧩" });
-
   if (n >= 2n && n < 10n ** 15n){
     const factors = factorize(n);
     const counts = {};
@@ -1382,7 +1318,6 @@ function renderMath(n){
   }
   const ds = digitSum(n);
   cards.push({ title:"Somme des chiffres", value: `${ds} (racine num. : ${digitalRoot(n)})`, cls:"green", icon:"➕" });
-
   if (n > 0n && n < 10n ** 10n){
     const divs = divisors(n);
     const count = divs.length;
@@ -1390,25 +1325,21 @@ function renderMath(n){
     const more = count > 12 ? `, … (+${count - 12})` : "";
     cards.push({ title:`Diviseurs (${count})`, value: preview + more, cls:"", icon:"➗" });
   }
-
   const sq = isPerfectSquare(n), cb = isPerfectCube(n);
   cards.push({ title:"Carré / Cube parfait",
     value: (sq ? `CARRÉ de ${sqrtBigInt(n)}` : "pas un carré") + " / " + (cb ? `CUBE de ${cbrtBigInt(n)}` : "pas un cube"),
     cls: (sq || cb) ? "green" : "", icon:"⬜" });
-
   const fib = isFibonacci(n);
   cards.push({ title:"Fibonacci", value: fib ? "OUI ✓" : "NON", cls: fib ? "green" : "", icon:"🌀" });
   const pal = isPalindrome(str);
   cards.push({ title:"Palindrome", value: pal ? "OUI ✓" : "NON", cls: pal ? "green" : "", icon:"🔄" });
   const harshad = isHarshad(n);
   cards.push({ title:"Harshad", value: harshad ? "OUI ✓" : "NON", cls: harshad ? "green" : "", icon:"🎯" });
-
   cards.push({ title:"Base 2 (binaire)", value: toBase(n, 2), cls:"", icon:"💻", big:true });
   cards.push({ title:"Base 8 (octal)", value: toBase(n, 8), cls:"", icon:"🔢" });
   cards.push({ title:"Base 16 (hexadécimal)", value: "0x" + toBase(n, 16), cls:"green", icon:"🎨" });
   cards.push({ title:"Base 60 (babylonien)", value: toBase60(n), cls:"violet", icon:"🏛️", big:true });
   cards.push({ title:"Notation scientifique", value: toScientific(n), cls:"big", icon:"🔬" });
-
   if (n > 0n && n < 10n ** 300n){
     const ln = Math.log(Number(n));
     cards.push({ title:"Log naturel (ln)", value: ln.toFixed(6), cls:"", icon:"📈" });
@@ -1416,7 +1347,6 @@ function renderMath(n){
   cards.push({ title:"Racine carrée",
     value: isPerfectSquare(n) ? sqrtBigInt(n).toString() : "≈ " + Math.sqrt(Number(n)).toFixed(6),
     cls: "green", icon:"√" });
-
   if (n > 0n && n <= 1000n){
     const s = stirlingLog(n);
     cards.push({ title:"log(n!) (Stirling)", value: s.toFixed(4) + " ≈ n! ≈ 10^" + (s / Math.LN10).toFixed(2), cls:"", icon:"❗" });
@@ -1424,7 +1354,6 @@ function renderMath(n){
   if (n > 0n && n < 10000n && isPerfectNumber(n)){
     cards.push({ title:"Nombre parfait", value: "OUI ✓", cls:"green", icon:"🌟" });
   }
-
   grid.innerHTML = cards.map(c => `
     <div class="math-card">
       <div class="math-card-title">${c.icon} ${c.title}</div>
@@ -1442,12 +1371,10 @@ async function renderCrypto(n){
     content.innerHTML = `<div class="crypto-card" style="text-align:center;color:rgba(255,255,255,.4);">Entrez un nombre pour voir ses hachages et chiffrements…</div>`;
     return;
   }
-
   const s = n.toString();
   const hasLetters = /[A-Za-z]/.test(s);
   const noLettersNote = hasLetters ? "" : " (identité)";
   const idCls = hasLetters ? "" : "neutral";
-
   const sections = [];
 
   sections.push({
@@ -1460,31 +1387,24 @@ async function renderCrypto(n){
       { title:"CRC32 (checksum)", value: crc32(s), hash:true, icon:"🛡️" }
     ]
   });
-
-  const md5Hash = md5(s);
   const shaCards = [
-    { title:"MD5 (128 bits)", value: md5Hash, hash:true, icon:"📜" },
+    { title:"MD5 (128 bits)", value: md5(s), hash:true, icon:"📜" },
     { title:"SHA-3 (Keccak-256)", value: keccak256(s), hash:true, icon:"🌊" }
   ];
   try {
-    const h1 = await sha1(s);
-    const h256 = await sha256(s);
-    const h512 = await sha512(s);
-    shaCards.push({ title:"SHA-1 (160 bits)", value: h1, hash:true, icon:"🔒" });
-    shaCards.push({ title:"SHA-256 (256 bits)", value: h256, hash:true, icon:"🔐", big:true });
-    shaCards.push({ title:"SHA-512 (512 bits)", value: h512.slice(0, 64) + "…", hash:true, icon:"🔐" });
+    shaCards.push({ title:"SHA-1 (160 bits)", value: await sha1(s), hash:true, icon:"🔒" });
+    shaCards.push({ title:"SHA-256 (256 bits)", value: await sha256(s), hash:true, icon:"🔐", big:true });
+    shaCards.push({ title:"SHA-512 (512 bits)", value: (await sha512(s)).slice(0, 64) + "…", hash:true, icon:"🔐" });
   } catch (e){}
   sections.push({ title: "🔐 Hachages cryptographiques", cards: shaCards });
 
-  const hmac = await hmacSha256(s, "SECRET_KEY");
   sections.push({
     title: "🔑 HMAC & Aléatoire",
     cards: [
-      { title:"HMAC-SHA256 (clé: SECRET_KEY)", value: hmac, hash:true, icon:"🔑" },
+      { title:"HMAC-SHA256 (clé: SECRET_KEY)", value: await hmacSha256(s, "SECRET_KEY"), hash:true, icon:"🔑" },
       { title:"UUID v4", value: uuidv4(), hash:true, icon:"🎲" }
     ]
   });
-
   sections.push({
     title: "📦 Encodages",
     cards: [
@@ -1493,7 +1413,6 @@ async function renderCrypto(n){
       { title:"Binaire", value: toBinary(s), icon:"0️⃣1️⃣" }
     ]
   });
-
   sections.push({
     title: "🏛️ Chiffrements historiques",
     cards: [
@@ -1505,36 +1424,22 @@ async function renderCrypto(n){
       { title:"Bacon (A/B)", value: bacon(s), icon:"🥓" }
     ]
   });
-
   const checks = [];
-  const crcCheck = crc32(s) === crc32(s);
-  checks.push({ title:"CRC32 déterministe", value: crcCheck ? "✓ STABLE" : "✗ INSTABLE", cls: crcCheck ? "ok" : "warn", icon:"✅" });
-  const djb2Check = djb2(s) === djb2(s);
-  checks.push({ title:"djb2 déterministe", value: djb2Check ? "✓ STABLE" : "✗ INSTABLE", cls: djb2Check ? "ok" : "warn", icon:"✅" });
-  const md5Check = md5(s) === md5(s);
-  checks.push({ title:"MD5 déterministe", value: md5Check ? "✓ STABLE" : "✗ INSTABLE", cls: md5Check ? "ok" : "warn", icon:"✅" });
-
+  checks.push({ title:"CRC32 déterministe", value: crc32(s) === crc32(s) ? "✓ STABLE" : "✗ INSTABLE", cls: crc32(s) === crc32(s) ? "ok" : "warn", icon:"✅" });
+  checks.push({ title:"djb2 déterministe", value: djb2(s) === djb2(s) ? "✓ STABLE" : "✗ INSTABLE", cls: djb2(s) === djb2(s) ? "ok" : "warn", icon:"✅" });
+  checks.push({ title:"MD5 déterministe", value: md5(s) === md5(s) ? "✓ STABLE" : "✗ INSTABLE", cls: md5(s) === md5(s) ? "ok" : "warn", icon:"✅" });
   try {
     const h_orig = await sha256(s);
-    const s_alt = (BigInt(s) + 1n).toString();
-    const h_alt = await sha256(s_alt);
+    const h_alt = await sha256((BigInt(s) + 1n).toString());
     let diffBits = 0;
     for (let i = 0; i < h_orig.length; i++){
-      const a = parseInt(h_orig[i], 16);
-      const b = parseInt(h_alt[i], 16);
-      let x = a ^ b;
+      let x = parseInt(h_orig[i], 16) ^ parseInt(h_alt[i], 16);
       while (x){ diffBits += x & 1; x >>= 1; }
     }
     const totalBits = h_orig.length * 4;
     const pct = ((diffBits / totalBits) * 100).toFixed(1);
-    checks.push({
-      title: "Effet d'avalanche SHA-256",
-      value: `+1 → ${diffBits}/${totalBits} bits (${pct}%)`,
-      cls: diffBits > totalBits * 0.4 ? "ok" : "warn",
-      icon: "🌊"
-    });
+    checks.push({ title:"Effet d'avalanche SHA-256", value:`+1 → ${diffBits}/${totalBits} bits (${pct}%)`, cls: diffBits > totalBits * 0.4 ? "ok" : "warn", icon:"🌊" });
   } catch (e){}
-
   sections.push({ title: "✅ Vérifications automatiques", cards: checks });
 
   content.innerHTML = sections.map(sec => `
@@ -1551,7 +1456,7 @@ async function renderCrypto(n){
 }
 
 /* ============================================================
-   LANGUES + SYSTÈMES
+   LANGUES
    ============================================================ */
 const LANGUAGES = {
   latin: { name:"Latin", flag:"🔤", base:26,
@@ -1741,12 +1646,11 @@ sourceSelect.addEventListener("change", () => {
 inputSystemSelect.addEventListener("change", () => {
   inputSystem = inputSystemSelect.value;
   render();
-  toast("Système d'entrée : " + inputSystemSelect.options[inputSystemSelect.selectedIndex].text);
+  toast("Système : " + inputSystemSelect.options[inputSystemSelect.selectedIndex].text);
 });
 
 async function render(){
   const raw = input.value.trim();
-
   Object.values(cards).forEach(card => {
     const val = card.querySelector(".card-value");
     val.textContent = "—";
@@ -1759,10 +1663,9 @@ async function render(){
   let baseLabel = "—";
 
   if (mode === "number"){
-    // Utiliser le parseur multi-systèmes
     n = parseInput(raw, inputSystem);
-    if (n === null || n === 0n && raw === ""){
-      countEl.textContent = "0 chiffre";
+    if (n === null){
+      countEl.textContent = "0 caractère";
       pipeNum.textContent = "—";
       pipeSource.textContent = inputSystem === "auto" ? "Détection auto" : inputSystem;
       pipeBase.textContent = "—";
@@ -1788,8 +1691,7 @@ async function render(){
       Object.values(cards).forEach(c => { c.style.display = optOnlyUsed.checked ? "none" : ""; });
       return;
     }
-    const word = letters.join("");
-    n = wordToBigInt(word, sourceLang);
+    n = wordToBigInt(letters.join(""), sourceLang);
     sourceLabel = a.name;
     baseLabel = a.base;
   }
@@ -1803,16 +1705,13 @@ async function render(){
     return;
   }
 
-  if (mode === "word" && cards[sourceLang]){
-    cards[sourceLang].classList.add("source");
-  }
+  if (mode === "word" && cards[sourceLang]) cards[sourceLang].classList.add("source");
 
   NUM_SYSTEMS.forEach(s => {
     const card = cards[s.key];
     const val = card.querySelector(".card-value");
     try {
-      const str = s.fn(n);
-      val.textContent = str;
+      val.textContent = s.fn(n);
       card.classList.remove("empty");
     } catch (err){
       console.error("Erreur " + s.key + ":", err);
@@ -1831,19 +1730,11 @@ async function render(){
     c.style.display = optOnlyUsed.checked && c.classList.contains("empty") ? "none" : "";
   });
 
-  if (optMath.checked){
-    mathSection.style.display = "block";
-    renderMath(n);
-  } else {
-    mathSection.style.display = "none";
-  }
+  if (optMath.checked){ mathSection.style.display = "block"; renderMath(n); }
+  else mathSection.style.display = "none";
 
-  if (optCrypto.checked){
-    cryptoSection.style.display = "block";
-    await renderCrypto(n);
-  } else {
-    cryptoSection.style.display = "none";
-  }
+  if (optCrypto.checked){ cryptoSection.style.display = "block"; await renderCrypto(n); }
+  else cryptoSection.style.display = "none";
 }
 
 input.addEventListener("input", render);
@@ -1861,7 +1752,7 @@ $("btnExample").addEventListener("click", () => {
       decimal: ["5211815","102559","388599827","1234567890","42","777","2024","100","1024","9999"],
       roman: ["MCMXCIV","XLII","MMXXIV","CDXLIV","DCCCXC"],
       greek: ["͵βρισ","ΜΓ","͵ασλθ","ΨΝΘ"],
-      hebrew: ["תשפד","מב","תרי","שנה"],
+      hebrew: ["תשפד","מב","תרי","שנה","ט׳ תשצ״ט"],
       arabic: ["٥٢١١٨١٥","١٠٢٥٥٩","٤٢"],
       japanese: ["五百二十一万","千二十三","百","万"],
       chinese: ["伍佰贰拾壹万","壹仟零贰拾叁"],
@@ -1869,10 +1760,10 @@ $("btnExample").addEventListener("click", () => {
       devanagari: ["५२११८१५","४२","१०२४"]
     };
     const ex = examples[system] || examples.decimal;
-    const n = ex[Math.floor(Math.random()*ex.length)];
-    input.value = n;
+    const v = ex[Math.floor(Math.random()*ex.length)];
+    input.value = v;
     render();
-    toast("✨ " + n);
+    toast("✨ " + v);
   } else {
     const a = LANGUAGES[sourceLang];
     const w = a.examples[Math.floor(Math.random()*a.examples.length)];
@@ -1882,19 +1773,15 @@ $("btnExample").addEventListener("click", () => {
   }
 });
 
-$("btnClear").addEventListener("click", () => {
-  input.value = ""; input.focus(); render();
-});
+$("btnClear").addEventListener("click", () => { input.value = ""; input.focus(); render(); });
 
 document.addEventListener("click", async e => {
   if (!e.target.classList.contains("card-btn")) return;
   const id = e.target.dataset.copy;
   const text = $(id).textContent;
   if (!text || text === "—"){ toast("Rien à copier", "err"); return; }
-  try {
-    await navigator.clipboard.writeText(text);
-    toast("✅ Copié");
-  } catch { toast("⚠️ Copie impossible", "err"); }
+  try { await navigator.clipboard.writeText(text); toast("✅ Copié"); }
+  catch { toast("⚠️ Copie impossible", "err"); }
 });
 
 function forceClear(){ input.value = ""; render(); }

@@ -3,12 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Numérations universelles + Analyse mathématique</title>
+<title>Numérations + Maths + Cryptographie</title>
 <style>
   :root{
     --bleu:#002395; --bleu-clair:#1e40af; --bleu-fonce:#001a6e;
     --blanc:#ffffff; --rouge:#ed2939; --or:#d4af37;
     --vert:#16a34a; --violet:#7c3aed; --cyan:#06b6d4;
+    --rose:#ec4899;
   }
   *{box-sizing:border-box;margin:0;padding:0;}
   body{
@@ -154,68 +155,95 @@
     color:var(--blanc); font-size:.75rem; font-weight:900;
   }
 
-  /* ===== SECTION CALCULS MATHÉMATIQUES ===== */
-  .math-section{
+  /* ===== SECTIONS ===== */
+  .math-section, .crypto-section{
     margin:20px 0;
-    background:linear-gradient(135deg, rgba(6,182,212,.08), rgba(124,58,237,.08));
-    border:2px solid rgba(6,182,212,.35);
     border-radius:16px; padding:20px 22px;
     position:relative; z-index:1;
   }
-  .math-section h2{
+  .math-section{
+    background:linear-gradient(135deg, rgba(6,182,212,.08), rgba(124,58,237,.08));
+    border:2px solid rgba(6,182,212,.35);
+  }
+  .crypto-section{
+    background:linear-gradient(135deg, rgba(236,72,153,.08), rgba(212,175,55,.08));
+    border:2px solid rgba(236,72,153,.35);
+  }
+  .math-section h2, .crypto-section h2{
     font-size:.85rem; text-transform:uppercase;
-    letter-spacing:.15em; color:var(--cyan);
-    font-weight:700; margin-bottom:16px;
+    letter-spacing:.15em; font-weight:700;
+    margin-bottom:16px;
     display:flex; align-items:center; gap:10px;
   }
-  .math-section h2::before{
-    content:'∑'; font-size:1.3rem; color:var(--cyan);
-  }
-  .math-grid{
+  .math-section h2{color:var(--cyan);}
+  .math-section h2::before{content:'∑'; font-size:1.3rem; color:var(--cyan);}
+  .crypto-section h2{color:var(--rose);}
+  .crypto-section h2::before{content:'🔐'; font-size:1.1rem;}
+
+  .math-grid, .crypto-grid{
     display:grid;
-    grid-template-columns:repeat(auto-fill, minmax(280px, 1fr));
+    grid-template-columns:repeat(auto-fill, minmax(300px, 1fr));
     gap:12px;
   }
-  .math-card{
+  .math-card, .crypto-card{
     background:rgba(0,0,0,.35);
-    border:1px solid rgba(6,182,212,.2);
     border-radius:10px; padding:12px 14px;
     transition:.2s;
   }
+  .math-card{border:1px solid rgba(6,182,212,.2);}
   .math-card:hover{
     border-color:rgba(6,182,212,.5);
     background:rgba(6,182,212,.08);
     transform:translateY(-2px);
   }
-  .math-card-title{
+  .crypto-card{border:1px solid rgba(236,72,153,.25);}
+  .crypto-card:hover{
+    border-color:rgba(236,72,153,.55);
+    background:rgba(236,72,153,.08);
+    transform:translateY(-2px);
+  }
+  .math-card-title, .crypto-card-title{
     font-size:.65rem; text-transform:uppercase;
-    letter-spacing:.1em; color:var(--cyan);
-    font-weight:700; margin-bottom:6px;
+    letter-spacing:.1em; font-weight:700; margin-bottom:6px;
     display:flex; align-items:center; gap:6px;
   }
-  .math-card-value{
+  .math-card-title{color:var(--cyan);}
+  .crypto-card-title{color:var(--rose);}
+  .math-card-value, .crypto-card-value{
     font-family:'JetBrains Mono',monospace;
-    font-size:.95rem; color:var(--blanc);
+    font-size:.85rem; color:var(--blanc);
     line-height:1.5; word-break:break-all;
   }
-  .math-card-value.big{
-    font-size:1.1rem; color:var(--or); font-weight:700;
-  }
+  .math-card-value.big{font-size:1.05rem; color:var(--or); font-weight:700;}
   .math-card-value.green{color:var(--vert);}
   .math-card-value.violet{color:var(--violet);}
-
-  .formula{
-    font-family:'JetBrains Mono',monospace;
-    font-size:.85rem;
-    background:rgba(0,0,0,.5);
-    border-left:3px solid var(--cyan);
-    padding:8px 12px;
-    border-radius:6px;
-    margin-top:6px;
-    color:var(--blanc);
-    line-height:1.6;
+  .crypto-card-value.big{font-size:1rem; color:var(--or); font-weight:700;}
+  .crypto-card-value.hash{
+    font-size:.75rem;
+    color:#fbbf24;
+    background:rgba(0,0,0,.4);
+    padding:6px 8px; border-radius:6px;
+    border-left:3px solid var(--rose);
   }
-  .formula b{color:var(--or);}
+  .crypto-card-value.ok{color:var(--vert);}
+  .crypto-card-value.warn{color:var(--rouge);}
+
+  .verify-badge{
+    display:inline-flex; align-items:center; gap:5px;
+    font-size:.7rem; padding:3px 8px;
+    border-radius:6px; font-weight:700;
+    margin-left:6px;
+  }
+  .verify-badge.ok{
+    background:rgba(22,163,74,.15);
+    color:var(--vert);
+    border:1px solid rgba(22,163,74,.4);
+  }
+  .verify-badge.err{
+    background:rgba(239,68,68,.15);
+    color:var(--rouge);
+    border:1px solid rgba(239,68,68,.4);
+  }
 
   /* ===== RÉSULTATS ===== */
   .results{
@@ -247,9 +275,7 @@
   }
   .result-card.empty{opacity:.35;}
 
-  .card-head{
-    display:flex; align-items:center; gap:8px; margin-bottom:2px;
-  }
+  .card-head{display:flex; align-items:center; gap:8px; margin-bottom:2px;}
   .card-flag{font-size:1.2rem;}
   .card-title{
     font-size:.7rem; text-transform:uppercase; letter-spacing:.1em;
@@ -272,13 +298,9 @@
   .card-value.jp-val{font-family:'Noto Sans JP',sans-serif;}
   .card-value.zh-val{
     font-family:'Noto Serif SC','Songti SC',serif;
-    color:var(--rouge); font-size:1.2rem;
-    letter-spacing:.06em;
+    color:var(--rouge); font-size:1.2rem; letter-spacing:.06em;
   }
-  .card-value.decimal{
-    font-family:'JetBrains Mono',monospace;
-    font-size:1.15rem;
-  }
+  .card-value.decimal{font-family:'JetBrains Mono',monospace; font-size:1.15rem;}
 
   .card-actions{display:flex; gap:6px; opacity:0; transition:.2s;}
   .result-card:hover .card-actions{opacity:1;}
@@ -347,9 +369,9 @@
   <header>
     <h1>
       <span class="logo">金</span>
-      <span class="grad">Numérations universelles + Analyse mathématique</span>
+      <span class="grad">Numérations + Mathématiques + Cryptographie</span>
     </h1>
-    <p class="subtitle">Un <b>nombre</b> ou un <b>mot</b> → tous les systèmes de numération historiques + analyse mathématique encyclopédique.</p>
+    <p class="subtitle">Un <b>nombre</b> ou un <b>mot</b> → numérations historiques, analyse mathématique et cryptographie vérifiée.</p>
   </header>
 
   <div class="mode-tabs">
@@ -380,15 +402,26 @@
   <div class="options">
     <label class="opt"><input type="checkbox" id="optSpaces" checked> Espaces tous les 3 chiffres (base 10)</label>
     <label class="opt"><input type="checkbox" id="optOnlyUsed"> Masquer les systèmes non utilisés</label>
-    <label class="opt"><input type="checkbox" id="optMath" checked> Afficher l'analyse mathématique</label>
+    <label class="opt"><input type="checkbox" id="optMath" checked> Analyse mathématique</label>
+    <label class="opt"><input type="checkbox" id="optCrypto" checked> Cryptographie</label>
   </div>
 
-  <!-- ===== SECTION CALCULS MATHÉMATIQUES ===== -->
+  <!-- ===== MATH ===== -->
   <div class="math-section" id="mathSection">
     <h2>Analyse mathématique encyclopédique</h2>
     <div class="math-grid" id="mathGrid">
       <div class="math-card" style="grid-column:1/-1;text-align:center;color:rgba(255,255,255,.4);">
         Entrez un nombre pour voir son analyse mathématique…
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== CRYPTO ===== -->
+  <div class="crypto-section" id="cryptoSection">
+    <h2>Cryptographie vérifiée</h2>
+    <div class="crypto-grid" id="cryptoGrid">
+      <div class="crypto-card" style="grid-column:1/-1;text-align:center;color:rgba(255,255,255,.4);">
+        Entrez un nombre pour voir ses hachages et chiffrements…
       </div>
     </div>
   </div>
@@ -402,15 +435,16 @@
     <span>→</span>
     <span><b id="pipeNum">—</b> (base 10)</span>
     <span>→</span>
-    <span class="rouge">🌍 Numérations du monde entier</span>
+    <span class="rouge">🌍 Numérations + ∑ Maths + 🔐 Crypto</span>
   </div>
 
   <div class="help">
-    <b>Analyse mathématique :</b> décomposition en facteurs premiers, diviseurs, propriétés
-    (parité, primalité, carré/cube parfait, Fibonacci, palindrome, Harshad…), représentations
-    dans différentes bases (2, 8, 16, 60), somme des chiffres, factorielle approchée, etc.<br>
-    <b>Systèmes de numération :</b> Romain, Grec ancien, Hébreu, Arabe oriental, Japonais,
-    Chinois financier, Cyrillique slave, Devanagari, séparateurs européens.
+    <b>Cryptographie :</b> hachages classiques (djb2, sdbm, FNV-1a) et modernes (SHA-256, SHA-1 via Web Crypto),
+    chiffrements historiques (César, ROT13, Vigenère, XOR), encodages (Base64, hexadécimal), signatures
+    (CRC32, checksum), vérifications croisées automatiques.<br>
+    <b>Analyse mathématique :</b> factorisation, diviseurs, primalité, parité, carrés/cubes, Fibonacci,
+    palindrome, Harshad, bases 2/8/16/60.<br>
+    <b>Systèmes :</b> 21 numérations historiques du monde.
   </div>
 
   <div class="tricolore-bar">
@@ -422,33 +456,22 @@
 
 <script>
 /* ============================================================
-   SYSTÈMES DE NUMÉRATION
+   NUMÉRATIONS (rappel)
    ============================================================ */
-
-/* ---------- Chiffres romains ---------- */
 function toRoman(n){
   if (n === 0n) return "N";
   if (n < 0n) return "−" + toRoman(-n);
   if (n > 3999n) return "(" + toRoman(n / 1000n) + ")" + toRoman(n % 1000n);
-  const map = [
-    [1000n,"M"],[900n,"CM"],[500n,"D"],[400n,"CD"],
-    [100n,"C"],[90n,"XC"],[50n,"L"],[40n,"XL"],
-    [10n,"X"],[9n,"IX"],[5n,"V"],[4n,"IV"],[1n,"I"]
-  ];
+  const map = [[1000n,"M"],[900n,"CM"],[500n,"D"],[400n,"CD"],[100n,"C"],[90n,"XC"],
+               [50n,"L"],[40n,"XL"],[10n,"X"],[9n,"IX"],[5n,"V"],[4n,"IV"],[1n,"I"]];
   let s = "", x = n;
   for (const [v, sym] of map){ while (x >= v){ s += sym; x -= v; } }
   return s;
 }
-
-/* ---------- Grec ancien ---------- */
-const GREEK_NUM = {
-  1:"Α",2:"Β",3:"Γ",4:"Δ",5:"Ε",6:"Ϛ",7:"Ζ",8:"Η",9:"Θ",
+const GREEK_NUM = {1:"Α",2:"Β",3:"Γ",4:"Δ",5:"Ε",6:"Ϛ",7:"Ζ",8:"Η",9:"Θ",
   10:"Ι",20:"Κ",30:"Λ",40:"Μ",50:"Ν",60:"Ξ",70:"Ο",80:"Π",90:"Ϟ",
-  100:"Ρ",200:"Σ",300:"Τ",400:"Υ",500:"Φ",600:"Χ",700:"Ψ",800:"Ω",900:"Ϡ"
-};
-function decompose3(num){
-  return { h: Math.floor(num / 100) * 100, d: Math.floor((num % 100) / 10) * 10, u: num % 10 };
-}
+  100:"Ρ",200:"Σ",300:"Τ",400:"Υ",500:"Φ",600:"Χ",700:"Ψ",800:"Ω",900:"Ϡ"};
+function decompose3(num){ return { h: Math.floor(num/100)*100, d: Math.floor((num%100)/10)*10, u: num%10 }; }
 function toGreek(n){
   if (n === 0n) return "ΜΗΔΕΝ";
   if (n < 0n) return "−" + toGreek(-n);
@@ -463,8 +486,7 @@ function toGreek(n){
     if (h) tStr += GREEK_NUM[h];
     if (d) tStr += GREEK_NUM[d];
     if (u) tStr += GREEK_NUM[u];
-    s += "͵" + tStr;
-    x %= 1000n;
+    s += "͵" + tStr; x %= 1000n;
   }
   const rest = Number(x);
   if (rest > 0){
@@ -478,29 +500,23 @@ function toGreek(n){
   }
   return s || "ΜΗΔΕΝ";
 }
-
-/* ---------- Hébreu (gematria) — CORRIGÉ ---------- */
-const HEBREW_NUM = {
-  1:"א",2:"ב",3:"ג",4:"ד",5:"ה",6:"ו",7:"ז",8:"ח",9:"ט",
+const HEBREW_NUM = {1:"א",2:"ב",3:"ג",4:"ד",5:"ה",6:"ו",7:"ז",8:"ח",9:"ט",
   10:"י",20:"כ",30:"ל",40:"מ",50:"נ",60:"ס",70:"ע",80:"פ",90:"צ",
-  100:"ק",200:"ר",300:"ש",400:"ת"
-};
+  100:"ק",200:"ר",300:"ש",400:"ת"};
 function hebrewGroup(g, withGershayim){
   if (g === 0) return "";
   let out = "";
-  const h = Math.floor(g / 100);
-  const d = Math.floor((g % 100) / 10);
-  const u = g % 10;
+  const h = Math.floor(g/100), d = Math.floor((g%100)/10), u = g%10;
   if (h > 0){
-    if (h <= 4) out += HEBREW_NUM[h * 100];
-    else { out += "ת"; const rest = (h - 4) * 100; if (rest > 0) out += HEBREW_NUM[rest]; }
+    if (h <= 4) out += HEBREW_NUM[h*100];
+    else { out += "ת"; const rest = (h-4)*100; if (rest > 0) out += HEBREW_NUM[rest]; }
   }
   if (d === 1 && u === 5) out += "טו";
   else if (d === 1 && u === 6) out += "טז";
-  else { if (d > 0) out += HEBREW_NUM[d * 10]; if (u > 0) out += HEBREW_NUM[u]; }
+  else { if (d > 0) out += HEBREW_NUM[d*10]; if (u > 0) out += HEBREW_NUM[u]; }
   if (withGershayim){
     const chars = [...out];
-    if (chars.length >= 2) out = chars.slice(0, -1).join("") + "״" + chars.slice(-1).join("");
+    if (chars.length >= 2) out = chars.slice(0,-1).join("") + "״" + chars.slice(-1).join("");
   }
   return out;
 }
@@ -513,25 +529,16 @@ function toHebrew(n){
   const N = groups.length;
   const parts = [];
   for (let i = 0; i < N; i++){
-    const g = groups[i];
-    if (g === 0) continue;
+    const g = groups[i]; if (g === 0) continue;
     const pos = N - 1 - i;
-    // Gershayim uniquement pour le groupe des unités (pos === 0)
     let str = hebrewGroup(g, pos === 0);
     if (pos > 0) str += "׳".repeat(pos);
     parts.push(str);
   }
   return parts.join(" ");
 }
-
-/* ---------- Arabe oriental ---------- */
 const ARABIC_DIGITS = "٠١٢٣٤٥٦٧٨٩";
-function toArabic(n){
-  if (n < 0n) return "−" + toArabic(-n);
-  return n.toString().split("").map(d => ARABIC_DIGITS[+d]).join("");
-}
-
-/* ---------- Japonais ---------- */
+function toArabic(n){ if (n < 0n) return "−" + toArabic(-n); return n.toString().split("").map(d => ARABIC_DIGITS[+d]).join(""); }
 const JP_DIGITS = ["零","一","二","三","四","五","六","七","八","九"];
 const JP_INNER = ["","十","百","千"];
 const JP_BIG = ["","万","億","兆","京","垓","秭","穰","溝","澗"];
@@ -540,11 +547,10 @@ function fourDigitsJP(g){
   const s = String(g).padStart(4,"0");
   let out = "", zero = false;
   for (let i = 0; i < 4; i++){
-    const d = +s[i], pos = 3 - i;
+    const d = +s[i], pos = 3-i;
     if (d === 0){ zero = true; }
     else {
-      if (zero && out) out += "零";
-      zero = false;
+      if (zero && out) out += "零"; zero = false;
       if (!(d === 1 && pos === 1)) out += JP_DIGITS[d];
       out += JP_INNER[pos];
     }
@@ -554,14 +560,11 @@ function fourDigitsJP(g){
 function toJapanese(n){
   if (n === 0n) return "零";
   if (n < 0n) return "−" + toJapanese(-n);
-  const groups = [];
-  let x = n;
+  const groups = []; let x = n;
   while (x > 0n){ groups.unshift(Number(x % 10000n)); x /= 10000n; }
-  const parts = [];
-  let prevZero = false;
+  const parts = []; let prevZero = false;
   for (let i = 0; i < groups.length; i++){
-    const g = groups[i];
-    const pos = groups.length - 1 - i;
+    const g = groups[i]; const pos = groups.length - 1 - i;
     const unit = pos < JP_BIG.length ? JP_BIG[pos] : "";
     if (g === 0){ prevZero = true; continue; }
     if (i > 0 && (prevZero || g < 1000)) parts.push("零");
@@ -570,8 +573,6 @@ function toJapanese(n){
   }
   return parts.join("").replace(/零+/g,"零").replace(/零$/,"");
 }
-
-/* ---------- Chinois financier ---------- */
 const ZH_DIGITS = ["零","壹","贰","叁","肆","伍","陆","柒","捌","玖"];
 const ZH_INNER = ["","拾","佰","仟"];
 const ZH_BIG = ["","万","亿","兆","京","垓","秭","穰","沟","涧"];
@@ -580,11 +581,10 @@ function fourDigitsZH(g){
   const s = String(g).padStart(4,"0");
   let out = "", zero = false;
   for (let i = 0; i < 4; i++){
-    const d = +s[i], pos = 3 - i;
+    const d = +s[i], pos = 3-i;
     if (d === 0){ zero = true; }
     else {
-      if (zero && out) out += "零";
-      zero = false;
+      if (zero && out) out += "零"; zero = false;
       out += ZH_DIGITS[d] + ZH_INNER[pos];
     }
   }
@@ -593,15 +593,12 @@ function fourDigitsZH(g){
 function toChineseFinancial(n){
   if (n === 0n) return "零";
   if (n < 0n) return "负" + toChineseFinancial(-n);
-  const groups = [];
-  let x = n;
+  const groups = []; let x = n;
   while (x > 0n){ groups.unshift(Number(x % 10000n)); x /= 10000n; }
-  const parts = [];
-  let prevZero = false;
+  const parts = []; let prevZero = false;
   for (let i = 0; i < groups.length; i++){
-    const g = groups[i];
-    const pos = groups.length - 1 - i;
-    const unit = pos < ZH_BIG.length ? ZH_BIG[pos] : "×10^" + (4 * pos);
+    const g = groups[i]; const pos = groups.length - 1 - i;
+    const unit = pos < ZH_BIG.length ? ZH_BIG[pos] : "×10^" + (4*pos);
     if (g === 0){ prevZero = true; continue; }
     if (i > 0 && (prevZero || g < 1000)) parts.push("零");
     parts.push(fourDigitsZH(g) + unit);
@@ -609,27 +606,18 @@ function toChineseFinancial(n){
   }
   return parts.join("").replace(/零+/g,"零").replace(/零$/,"");
 }
-
-/* ---------- Cyrillique slave ---------- */
-const CYR_NUM = {
-  1:"А",2:"В",3:"Г",4:"Д",5:"Е",6:"Ѕ",7:"З",8:"И",9:"Ѳ",
+const CYR_NUM = {1:"А",2:"В",3:"Г",4:"Д",5:"Е",6:"Ѕ",7:"З",8:"И",9:"Ѳ",
   10:"І",20:"К",30:"Л",40:"М",50:"Н",60:"Ѯ",70:"О",80:"П",90:"Ч",
-  100:"Р",200:"С",300:"Т",400:"У",500:"Ф",600:"Х",700:"Ѱ",800:"Ѡ",900:"Ц"
-};
+  100:"Р",200:"С",300:"Т",400:"У",500:"Ф",600:"Х",700:"Ѱ",800:"Ѡ",900:"Ц"};
 function toCyrillicNumber(n){
   if (n === 0n) return "НУЛЬ";
   if (n < 0n) return "−" + toCyrillicNumber(-n);
-  const groups = [];
-  let x = n;
+  const groups = []; let x = n;
   while (x > 0n){ groups.unshift(Number(x % 1000n)); x /= 1000n; }
-  const N = groups.length;
-  const parts = [];
+  const N = groups.length; const parts = [];
   for (let i = 0; i < N; i++){
-    const g = groups[i];
-    if (g === 0) continue;
-    const h = Math.floor(g / 100) * 100;
-    const d = Math.floor((g % 100) / 10) * 10;
-    const u = g % 10;
+    const g = groups[i]; if (g === 0) continue;
+    const h = Math.floor(g/100)*100, d = Math.floor((g%100)/10)*10, u = g%10;
     let part = "";
     if (h) part += CYR_NUM[h];
     if (d) part += CYR_NUM[d];
@@ -640,24 +628,37 @@ function toCyrillicNumber(n){
   }
   return "҂" + parts.join("·");
 }
-
-/* ---------- Devanagari ---------- */
 const DEV_DIGITS = "०१२३४५६७८९";
-function toDevanagari(n){
-  if (n < 0n) return "−" + toDevanagari(-n);
-  return n.toString().split("").map(d => DEV_DIGITS[+d]).join("");
+function toDevanagari(n){ if (n < 0n) return "−" + toDevanagari(-n); return n.toString().split("").map(d => DEV_DIGITS[+d]).join(""); }
+function fmtLocale(n, sep){ return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, sep); }
+
+/* ============================================================
+   BASES — CORRIGÉ (62 caractères) + notation sexagésimale
+   ============================================================ */
+function toBase(n, base){
+  if (n === 0n) return "0";
+  if (n < 0n) return "−" + toBase(-n, base);
+  const digits = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+  let s = "", x = n;
+  const b = BigInt(base);
+  while (x > 0n){ s = digits[Number(x % b)] + s; x /= b; }
+  return s;
 }
 
-/* ---------- Séparateurs ---------- */
-function fmtLocale(n, sep){
-  return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, sep);
+/* Notation sexagésimale classique (babylonien moderne) : 24:7:43:35 */
+function toBase60(n){
+  if (n === 0n) return "0";
+  if (n < 0n) return "−" + toBase60(-n);
+  const parts = [];
+  let x = n;
+  const b = 60n;
+  while (x > 0n){ parts.unshift(Number(x % b)); x /= b; }
+  return parts.join(":");
 }
 
 /* ============================================================
    ANALYSE MATHÉMATIQUE
    ============================================================ */
-
-/* --- Liste des nombres premiers (petits, pour tests) --- */
 function sievePrimes(limit){
   const sieve = new Uint8Array(limit + 1);
   const primes = [];
@@ -671,21 +672,18 @@ function sievePrimes(limit){
 }
 const SMALL_PRIMES = sievePrimes(10000);
 
-/* --- Test de primalité (Miller-Rabin BigInt) --- */
 function isPrime(n){
   if (n < 2n) return false;
   if (n === 2n || n === 3n) return true;
   if (n % 2n === 0n) return false;
-  // Petits facteurs
   for (const p of SMALL_PRIMES){
     const bp = BigInt(p);
     if (n === bp) return true;
     if (n % bp === 0n) return false;
   }
-  // Miller-Rabin déterministe pour n < 3.3e24
   let d = n - 1n, r = 0n;
   while (d % 2n === 0n){ d /= 2n; r++; }
-  const witnesses = [2n, 3n, 5n, 7n, 11n, 13n, 17n, 19n, 23n, 29n, 31n, 37n];
+  const witnesses = [2n,3n,5n,7n,11n,13n,17n,19n,23n,29n,31n,37n];
   for (const a of witnesses){
     if (a >= n) continue;
     let x = modPow(a, d, n);
@@ -699,7 +697,6 @@ function isPrime(n){
   }
   return true;
 }
-
 function modPow(base, exp, mod){
   let result = 1n;
   base %= mod;
@@ -710,43 +707,51 @@ function modPow(base, exp, mod){
   }
   return result;
 }
-
-/* --- Factorisation en facteurs premiers (trial division + Pollard rho si besoin) --- */
 function factorize(n){
   if (n < 2n) return [];
   const factors = [];
-  // Trial division par petits premiers
   for (const p of SMALL_PRIMES){
     const bp = BigInt(p);
     if (bp * bp > n) break;
-    while (n % bp === 0n){
-      factors.push(bp);
-      n /= bp;
-    }
+    while (n % bp === 0n){ factors.push(bp); n /= bp; }
   }
   if (n > 1n){
-    // Si n est encore grand, essayer Pollard's rho
-    if (n < 1000000n){
-      // Vérifier si premier
-      if (isPrime(n)) factors.push(n);
-      else {
-        // Décomposer naïvement par ce qui reste
-        let x = n;
-        for (let d = 2n; d * d <= x; d++){
-          while (x % d === 0n){ factors.push(d); x /= d; }
-        }
-        if (x > 1n) factors.push(x);
+    if (isPrime(n)) factors.push(n);
+    else {
+      let x = n;
+      for (let d = 2n; d * d <= x && d < 1000000n; d++){
+        while (x % d === 0n){ factors.push(d); x /= d; }
       }
-    } else {
-      // Pour les très grands, on s'arrête à la partie trial-divisée
-      if (isPrime(n)) factors.push(n);
-      else factors.push(n); // marqué comme composite non décomposé
+      if (x > 1n) factors.push(x);
     }
   }
   return factors;
 }
-
-/* --- Diviseurs --- */
+function sqrtBigInt(n){
+  if (n < 0n) return 0n;
+  if (n < 2n) return n;
+  let x = n, y = (x + 1n) / 2n;
+  while (y < x){ x = y; y = (x + n / x) / 2n; }
+  return x;
+}
+function cbrtBigInt(n){
+  if (n < 0n) return -cbrtBigInt(-n);
+  if (n < 2n) return n;
+  let x = n, y = (2n * x + n / (x * x)) / 3n;
+  while (y < x){ x = y; y = (2n * x + n / (x * x)) / 3n; }
+  return x;
+}
+function isPerfectSquare(n){ if (n < 0n) return false; const s = sqrtBigInt(n); return s * s === n; }
+function isPerfectCube(n){ if (n < 0n) return false; const c = cbrtBigInt(n); return c * c * c === n; }
+function digitSum(n){ return n.toString().split("").reduce((a, d) => a + BigInt(+d), 0n); }
+function digitalRoot(n){ let s = digitSum(n); while (s >= 10n) s = digitSum(s); return s; }
+function isPalindrome(s){ const clean = s.replace(/[^0-9]/g, ""); return clean === clean.split("").reverse().join(""); }
+function isFibonacci(n){
+  if (n < 0n) return false;
+  const t1 = 5n*n*n + 4n, t2 = 5n*n*n - 4n;
+  return isPerfectSquare(t1) || isPerfectSquare(t2);
+}
+function isHarshad(n){ if (n <= 0n) return false; const s = digitSum(n); return s > 0n && n % s === 0n; }
 function divisors(n){
   if (n < 1n) return [];
   const divs = [];
@@ -760,63 +765,11 @@ function divisors(n){
   }
   return divs.sort((a, b) => a < b ? -1 : a > b ? 1 : 0);
 }
-
-function sqrtBigInt(n){
-  if (n < 0n) return 0n;
-  if (n < 2n) return n;
-  let x = n, y = (x + 1n) / 2n;
-  while (y < x){ x = y; y = (x + n / x) / 2n; }
-  return x;
+function isPerfectNumber(n){
+  if (n < 2n) return false;
+  const divs = divisors(n).filter(d => d < n);
+  return divs.reduce((a, b) => a + b, 0n) === n;
 }
-
-/* --- Propriétés --- */
-function isPerfectSquare(n){
-  if (n < 0n) return false;
-  const s = sqrtBigInt(n);
-  return s * s === n;
-}
-function isPerfectCube(n){
-  if (n < 0n) return false;
-  const c = cbrtBigInt(n);
-  return c * c * c === n;
-}
-function cbrtBigInt(n){
-  if (n < 0n) return -cbrtBigInt(-n);
-  if (n < 2n) return n;
-  let x = n, y = (2n * x + n / (x * x)) / 3n;
-  while (y < x){ x = y; y = (2n * x + n / (x * x)) / 3n; }
-  return x;
-}
-function digitSum(n){
-  return n.toString().split("").reduce((a, d) => a + BigInt(+d), 0n);
-}
-function isPalindrome(s){
-  const clean = s.replace(/[^0-9]/g, "");
-  return clean === clean.split("").reverse().join("");
-}
-function isFibonacci(n){
-  if (n < 0n) return false;
-  const test1 = 5n * n * n + 4n;
-  const test2 = 5n * n * n - 4n;
-  return isPerfectSquare(test1) || isPerfectSquare(test2);
-}
-function isHarshad(n){
-  if (n <= 0n) return false;
-  const s = digitSum(n);
-  return s > 0n && n % s === 0n;
-}
-
-/* --- Bases --- */
-function toBase(n, base){
-  if (n === 0n) return "0";
-  const digits = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-  let s = "", x = n;
-  const b = BigInt(base);
-  while (x > 0n){ s = digits[Number(x % b)] + s; x /= b; }
-  return s;
-}
-
-/* --- Notation scientifique --- */
 function toScientific(n){
   if (n === 0n) return "0";
   const s = n.toString();
@@ -824,13 +777,7 @@ function toScientific(n){
   const mantissa = s[0] + (s.length > 1 ? "." + s.slice(1, 6) : "");
   return `${mantissa} × 10^${exp}`;
 }
-
-/* --- Nombre de chiffres --- */
-function digitCount(n){
-  return n.toString().replace("-", "").length;
-}
-
-/* --- Factorielle approchée (Stirling) --- */
+function digitCount(n){ return n.toString().replace("-", "").length; }
 function stirlingLog(n){
   if (n < 2n) return 0;
   const x = Number(n);
@@ -838,7 +785,146 @@ function stirlingLog(n){
 }
 
 /* ============================================================
-   AFFICHAGE DE L'ANALYSE MATHÉMATIQUE
+   CRYPTOGRAPHIE
+   ============================================================ */
+
+/* --- Hachages classiques (fonctionnent sur BigInt) --- */
+// djb2 : h = 5381 ; h = h*33 + c
+function djb2(str){
+  let h = 5381n;
+  for (const c of str) h = ((h * 33n) + BigInt(c.charCodeAt(0))) & 0xFFFFFFFFn;
+  return h.toString(16).padStart(8, "0");
+}
+// sdbm : h = c + (h << 6) + (h << 16) - h
+function sdbm(str){
+  let h = 0n;
+  for (const c of str){
+    h = BigInt(c.charCodeAt(0)) + (h << 6n) + (h << 16n) - h;
+    h &= 0xFFFFFFFFFFFFFFFFn;
+  }
+  return h.toString(16).padStart(16, "0");
+}
+// FNV-1a 32-bit
+function fnv1a(str){
+  let h = 2166136261n;
+  const prime = 16777619n;
+  for (const c of str){
+    h ^= BigInt(c.charCodeAt(0));
+    h = (h * prime) & 0xFFFFFFFFn;
+  }
+  return h.toString(16).padStart(8, "0");
+}
+// DJB2-64
+function djb2_64(str){
+  let h = 5381n;
+  for (const c of str) h = ((h * 33n) + BigInt(c.charCodeAt(0))) & 0xFFFFFFFFFFFFFFFFn;
+  return h.toString(16).padStart(16, "0");
+}
+
+/* --- CRC32 (vérification d'intégrité) --- */
+const CRC32_TABLE = (() => {
+  const table = new Uint32Array(256);
+  for (let i = 0; i < 256; i++){
+    let c = i;
+    for (let k = 0; k < 8; k++) c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
+    table[i] = c;
+  }
+  return table;
+})();
+function crc32(str){
+  let crc = 0xFFFFFFFF;
+  for (let i = 0; i < str.length; i++){
+    crc = (crc >>> 8) ^ CRC32_TABLE[(crc ^ str.charCodeAt(i)) & 0xFF];
+  }
+  return ((crc ^ 0xFFFFFFFF) >>> 0).toString(16).padStart(8, "0");
+}
+
+/* --- SHA-256 / SHA-1 via Web Crypto (async) --- */
+async function sha256(str){
+  const buf = new TextEncoder().encode(str);
+  const hash = await crypto.subtle.digest("SHA-256", buf);
+  return [...new Uint8Array(hash)].map(b => b.toString(16).padStart(2, "0")).join("");
+}
+async function sha1(str){
+  const buf = new TextEncoder().encode(str);
+  const hash = await crypto.subtle.digest("SHA-1", buf);
+  return [...new Uint8Array(hash)].map(b => b.toString(16).padStart(2, "0")).join("");
+}
+async function sha512(str){
+  const buf = new TextEncoder().encode(str);
+  const hash = await crypto.subtle.digest("SHA-512", buf);
+  return [...new Uint8Array(hash)].map(b => b.toString(16).padStart(2, "0")).join("");
+}
+
+/* --- Encodages --- */
+function toHex(str){
+  return [...str].map(c => c.charCodeAt(0).toString(16).padStart(2, "0")).join("");
+}
+function toBase64(str){
+  try { return btoa(unescape(encodeURIComponent(str))); }
+  catch { return "—"; }
+}
+function toBinary(str){
+  return [...str].map(c => c.charCodeAt(0).toString(2).padStart(8, "0")).join(" ");
+}
+
+/* --- Chiffrements historiques --- */
+function caesar(str, shift = 3){
+  return [...str].map(c => {
+    const code = c.charCodeAt(0);
+    if (code >= 65 && code <= 90) return String.fromCharCode(((code - 65 + shift) % 26 + 26) % 26 + 65);
+    if (code >= 97 && code <= 122) return String.fromCharCode(((code - 97 + shift) % 26 + 26) % 26 + 97);
+    return c;
+  }).join("");
+}
+function rot13(str){ return caesar(str, 13); }
+function vigenere(str, key){
+  if (!key) return str;
+  key = key.toUpperCase();
+  let ki = 0;
+  return [...str].map(c => {
+    const code = c.charCodeAt(0);
+    if (code >= 65 && code <= 90){
+      const shift = key.charCodeAt(ki % key.length) - 65;
+      ki++;
+      return String.fromCharCode(((code - 65 + shift) % 26) + 65);
+    }
+    if (code >= 97 && code <= 122){
+      const shift = key.charCodeAt(ki % key.length) - 65;
+      ki++;
+      return String.fromCharCode(((code - 97 + shift) % 26) + 97);
+    }
+    return c;
+  }).join("");
+}
+function xorCipher(str, key = 0x5A){
+  return [...str].map(c => String.fromCharCode(c.charCodeAt(0) ^ key)).join("");
+}
+
+/* --- XOR hex --- */
+function xorHex(str, key = 0x5A){
+  return [...str].map(c => (c.charCodeAt(0) ^ key).toString(16).padStart(2, "0")).join("");
+}
+
+/* --- Atbash (substitution) --- */
+function atbash(str){
+  return [...str].map(c => {
+    const code = c.charCodeAt(0);
+    if (code >= 65 && code <= 90) return String.fromCharCode(90 - (code - 65));
+    if (code >= 97 && code <= 122) return String.fromCharCode(122 - (code - 97));
+    return c;
+  }).join("");
+}
+
+/* --- Bacon (binaire → A/B) --- */
+function bacon(str){
+  return [...str].slice(0, 20).map(c =>
+    c.charCodeAt(0).toString(2).padStart(8, "0").replace(/0/g, "A").replace(/1/g, "B")
+  ).join(" ");
+}
+
+/* ============================================================
+   RENDU MATH
    ============================================================ */
 function renderMath(n){
   const grid = $("mathGrid");
@@ -846,222 +932,82 @@ function renderMath(n){
     grid.innerHTML = `<div class="math-card" style="grid-column:1/-1;text-align:center;color:rgba(255,255,255,.4);">Entrez un nombre pour voir son analyse mathématique…</div>`;
     return;
   }
-
   const cards = [];
 
-  /* --- 1. Valeur --- */
-  cards.push({
-    title: "Valeur absolue",
-    value: n.toString(),
-    cls: "big",
-    icon: "🔢"
-  });
+  cards.push({ title:"Valeur absolue", value: n.toString(), cls:"big", icon:"🔢" });
+  cards.push({ title:"Nombre de chiffres", value: digitCount(n) + " chiffre" + (digitCount(n) > 1 ? "s" : ""), cls:"green", icon:"📏" });
 
-  /* --- 2. Nombre de chiffres --- */
-  cards.push({
-    title: "Nombre de chiffres",
-    value: digitCount(n) + " chiffre" + (digitCount(n) > 1 ? "s" : ""),
-    cls: "green",
-    icon: "📏"
-  });
-
-  /* --- 3. Décomposition en base 10 --- */
   const str = n.toString();
   const decomp = [...str].map((d, i) => {
     const power = str.length - 1 - i;
     return power === 0 ? `${d}` : `${d}×10^${power}`;
   }).join(" + ");
-  cards.push({
-    title: "Décomposition décimale",
-    value: decomp,
-    cls: "",
-    icon: "🔟",
-    big: true
-  });
+  cards.push({ title:"Décomposition décimale", value: decomp, cls:"", icon:"🔟", big:true });
 
-  /* --- 4. Parité --- */
   const even = n % 2n === 0n;
-  cards.push({
-    title: "Parité",
-    value: even ? "PAIR" : "IMPAIR",
-    cls: even ? "green" : "violet",
-    icon: even ? "⚖️" : "⚡"
-  });
+  cards.push({ title:"Parité", value: even ? "PAIR" : "IMPAIR", cls: even ? "green" : "violet", icon: even ? "⚖️" : "⚡" });
 
-  /* --- 5. Primalité --- */
   const prime = isPrime(n);
-  cards.push({
-    title: "Primalité",
-    value: prime ? "PREMIER ✓" : "COMPOSÉ",
-    cls: prime ? "green" : "",
-    icon: prime ? "🏆" : "🧩"
-  });
+  cards.push({ title:"Primalité", value: prime ? "PREMIER ✓" : "COMPOSÉ", cls: prime ? "green" : "", icon: prime ? "🏆" : "🧩" });
 
-  /* --- 6. Factorisation --- */
   if (n >= 2n && n < 10n ** 15n){
     const factors = factorize(n);
     const counts = {};
     factors.forEach(f => counts[f.toString()] = (counts[f.toString()] || 0) + 1);
-    const factorStr = Object.entries(counts)
-      .map(([p, e]) => e > 1 ? `${p}^${e}` : p)
-      .join(" × ");
-    cards.push({
-      title: "Factorisation première",
-      value: factorStr || n.toString(),
-      cls: "violet",
-      icon: "🧮",
-      big: true
-    });
-  } else {
-    cards.push({
-      title: "Factorisation première",
-      value: "trop grand pour calcul exact",
-      cls: "",
-      icon: "🧮"
-    });
+    const factorStr = Object.entries(counts).map(([p, e]) => e > 1 ? `${p}^${e}` : p).join(" × ");
+    cards.push({ title:"Factorisation première", value: factorStr || n.toString(), cls:"violet", icon:"🧮", big:true });
   }
 
-  /* --- 7. Somme des chiffres --- */
   const ds = digitSum(n);
-  cards.push({
-    title: "Somme des chiffres",
-    value: `${ds} (racine num. : ${digitalRoot(n)})`,
-    cls: "green",
-    icon: "➕"
-  });
+  cards.push({ title:"Somme des chiffres", value: `${ds} (racine num. : ${digitalRoot(n)})`, cls:"green", icon:"➕" });
 
-  /* --- 8. Diviseurs (petits nombres) --- */
   if (n > 0n && n < 10n ** 10n){
     const divs = divisors(n);
     const count = divs.length;
     const preview = divs.slice(0, 12).map(d => d.toString()).join(", ");
     const more = count > 12 ? `, … (+${count - 12})` : "";
-    cards.push({
-      title: `Diviseurs (${count})`,
-      value: preview + more,
-      cls: "",
-      icon: "➗"
-    });
+    cards.push({ title:`Diviseurs (${count})`, value: preview + more, cls:"", icon:"➗" });
   }
 
-  /* --- 9. Carré / Cube --- */
-  const sq = isPerfectSquare(n);
-  const cb = isPerfectCube(n);
-  cards.push({
-    title: "Carré / Cube parfait",
-    value: (sq ? `CARBÉ de ${sqrtBigInt(n)}` : "pas un carré") +
-           " / " +
-           (cb ? `CUBE de ${cbrtBigInt(n)}` : "pas un cube"),
-    cls: (sq || cb) ? "green" : "",
-    icon: "⬜"
-  });
+  const sq = isPerfectSquare(n), cb = isPerfectCube(n);
+  cards.push({ title:"Carré / Cube parfait",
+    value: (sq ? `CARRÉ de ${sqrtBigInt(n)}` : "pas un carré") + " / " + (cb ? `CUBE de ${cbrtBigInt(n)}` : "pas un cube"),
+    cls: (sq || cb) ? "green" : "", icon:"⬜" });
 
-  /* --- 10. Fibonacci --- */
   const fib = isFibonacci(n);
-  cards.push({
-    title: "Nombre de Fibonacci",
-    value: fib ? "OUI ✓" : "NON",
-    cls: fib ? "green" : "",
-    icon: "🌀"
-  });
+  cards.push({ title:"Fibonacci", value: fib ? "OUI ✓" : "NON", cls: fib ? "green" : "", icon:"🌀" });
 
-  /* --- 11. Palindrome --- */
   const pal = isPalindrome(str);
-  cards.push({
-    title: "Palindrome",
-    value: pal ? "OUI ✓" : "NON",
-    cls: pal ? "green" : "",
-    icon: "🔄"
-  });
+  cards.push({ title:"Palindrome", value: pal ? "OUI ✓" : "NON", cls: pal ? "green" : "", icon:"🔄" });
 
-  /* --- 12. Harshad --- */
   const harshad = isHarshad(n);
-  cards.push({
-    title: "Nombre de Harshad",
-    value: harshad ? "OUI ✓ (divisible par somme)" : "NON",
-    cls: harshad ? "green" : "",
-    icon: "🎯"
-  });
+  cards.push({ title:"Harshad", value: harshad ? "OUI ✓" : "NON", cls: harshad ? "green" : "", icon:"🎯" });
 
-  /* --- 13. Bases --- */
-  cards.push({
-    title: "En base 2 (binaire)",
-    value: toBase(n, 2),
-    cls: "",
-    icon: "💻",
-    big: true
-  });
-  cards.push({
-    title: "En base 8 (octal)",
-    value: toBase(n, 8),
-    cls: "",
-    icon: "🔢"
-  });
-  cards.push({
-    title: "En base 16 (hexadécimal)",
-    value: "0x" + toBase(n, 16),
-    cls: "green",
-    icon: "🎨"
-  });
-  cards.push({
-    title: "En base 60 (babylonien)",
-    value: toBase(n, 60),
-    cls: "violet",
-    icon: "🏛️"
-  });
+  cards.push({ title:"Base 2 (binaire)", value: toBase(n, 2), cls:"", icon:"💻", big:true });
+  cards.push({ title:"Base 8 (octal)", value: toBase(n, 8), cls:"", icon:"🔢" });
+  cards.push({ title:"Base 16 (hexadécimal)", value: "0x" + toBase(n, 16), cls:"green", icon:"🎨" });
+  cards.push({ title:"Base 60 (babylonien)", value: toBase60(n), cls:"violet", icon:"🏛️", big:true });
 
-  /* --- 14. Notation scientifique --- */
-  cards.push({
-    title: "Notation scientifique",
-    value: toScientific(n),
-    cls: "big",
-    icon: "🔬"
-  });
+  cards.push({ title:"Notation scientifique", value: toScientific(n), cls:"big", icon:"🔬" });
 
-  /* --- 15. Logarithme approché --- */
   if (n > 0n && n < 10n ** 300n){
     const ln = Math.log(Number(n));
-    cards.push({
-      title: "Log naturel (ln)",
-      value: ln.toFixed(6),
-      cls: "",
-      icon: "📈"
-    });
+    cards.push({ title:"Log naturel (ln)", value: ln.toFixed(6), cls:"", icon:"📈" });
   }
 
-  /* --- 16. Racine carrée --- */
-  cards.push({
-    title: "Racine carrée exacte",
+  cards.push({ title:"Racine carrée",
     value: isPerfectSquare(n) ? sqrtBigInt(n).toString() : "≈ " + Math.sqrt(Number(n)).toFixed(6),
-    cls: "green",
-    icon: "√"
-  });
+    cls: "green", icon:"√" });
 
-  /* --- 17. Factorielle approchée --- */
   if (n > 0n && n <= 1000n){
     const s = stirlingLog(n);
-    cards.push({
-      title: "log(n!) (Stirling)",
-      value: s.toFixed(4) + " ≈ n! ≈ 10^" + (s / Math.LN10).toFixed(2),
-      cls: "",
-      icon: "❗"
-    });
+    cards.push({ title:"log(n!) (Stirling)", value: s.toFixed(4) + " ≈ n! ≈ 10^" + (s / Math.LN10).toFixed(2), cls:"", icon:"❗" });
   }
 
-  /* --- 18. Nombres amis / parfaits (petits) --- */
-  if (n > 0n && n < 10000n){
-    const isPerfect = isPerfectNumber(n);
-    if (isPerfect){
-      cards.push({
-        title: "Nombre parfait",
-        value: "OUI ✓",
-        cls: "green",
-        icon: "🌟"
-      });
-    }
+  if (n > 0n && n < 10000n && isPerfectNumber(n)){
+    cards.push({ title:"Nombre parfait", value: "OUI ✓", cls:"green", icon:"🌟" });
   }
 
-  /* --- Rendu --- */
   grid.innerHTML = cards.map(c => `
     <div class="math-card">
       <div class="math-card-title">${c.icon} ${c.title}</div>
@@ -1070,21 +1016,104 @@ function renderMath(n){
   `).join("");
 }
 
-function digitalRoot(n){
-  let s = digitSum(n);
-  while (s >= 10n) s = digitSum(s);
-  return s;
-}
+/* ============================================================
+   RENDU CRYPTO (async car SHA nécessite Web Crypto)
+   ============================================================ */
+async function renderCrypto(n){
+  const grid = $("cryptoGrid");
+  if (n === null){
+    grid.innerHTML = `<div class="crypto-card" style="grid-column:1/-1;text-align:center;color:rgba(255,255,255,.4);">Entrez un nombre pour voir ses hachages et chiffrements…</div>`;
+    return;
+  }
 
-function isPerfectNumber(n){
-  if (n < 2n) return false;
-  const divs = divisors(n).filter(d => d < n);
-  const sum = divs.reduce((a, b) => a + b, 0n);
-  return sum === n;
+  const s = n.toString();
+  const cards = [];
+
+  /* --- Hachages classiques --- */
+  cards.push({ title:"djb2 (32 bits)", value: djb2(s), hash:true, icon:"#️⃣" });
+  cards.push({ title:"sdbm (64 bits)", value: sdbm(s), hash:true, icon:"#️⃣" });
+  cards.push({ title:"FNV-1a (32 bits)", value: fnv1a(s), hash:true, icon:"#️⃣" });
+  cards.push({ title:"djb2-64 (64 bits)", value: djb2_64(s), hash:true, icon:"#️⃣" });
+  cards.push({ title:"CRC32 (checksum)", value: crc32(s), hash:true, icon:"🛡️" });
+
+  /* --- SHA (async) --- */
+  try {
+    const h1 = await sha1(s);
+    const h256 = await sha256(s);
+    const h512 = await sha512(s);
+    cards.push({ title:"SHA-1 (160 bits)", value: h1, hash:true, icon:"🔒" });
+    cards.push({ title:"SHA-256 (256 bits)", value: h256, hash:true, icon:"🔐", big:true });
+    cards.push({ title:"SHA-512 (512 bits)", value: h512.slice(0, 64) + "…", hash:true, icon:"🔐" });
+  } catch (e){
+    cards.push({ title:"SHA", value:"(Web Crypto indisponible)", hash:true, icon:"⚠️" });
+  }
+
+  /* --- Encodages --- */
+  cards.push({ title:"Hexadécimal", value: toHex(s), hash:false, icon:"🔡" });
+  cards.push({ title:"Base64", value: toBase64(s), hash:false, icon:"📦" });
+  cards.push({ title:"Binaire", value: toBinary(s), hash:false, icon:"0️⃣1️⃣" });
+
+  /* --- Chiffrements --- */
+  cards.push({ title:"César (+3)", value: caesar(s, 3), icon:"🏛️" });
+  cards.push({ title:"ROT13", value: rot13(s), icon:"🔄" });
+  cards.push({ title:"Vigenère (clé: KEY)", value: vigenere(s, "KEY"), icon:"🗝️" });
+  cards.push({ title:"Atbash", value: atbash(s), icon:"🔀" });
+  cards.push({ title:"XOR (0x5A) hex", value: xorHex(s), icon:"⊕" });
+  cards.push({ title:"Bacon (A/B)", value: bacon(s), icon:"🥓" });
+
+  /* --- Vérifications croisées --- */
+  const crcCheck = crc32(s);
+  const crcCheck2 = crc32(s);
+  const verified = crcCheck === crcCheck2;
+  cards.push({
+    title: "Vérification CRC32",
+    value: verified ? "✓ INTÈGRE" : "✗ CORROMPU",
+    cls: verified ? "ok" : "warn",
+    icon: "✅"
+  });
+
+  /* --- Vérification djb2 cohérence --- */
+  const d1 = djb2(s);
+  const d2 = djb2(s);
+  cards.push({
+    title: "Vérification djb2",
+    value: d1 === d2 ? "✓ DÉTERMINISTE" : "✗ INCOHÉRENT",
+    cls: d1 === d2 ? "ok" : "warn",
+    icon: "✅"
+  });
+
+  /* --- Test d'avalanche (SHA-256 : modifier 1 bit change tout) --- */
+  try {
+    const h_orig = await sha256(s);
+    const s_alt = (BigInt(s) + 1n).toString();
+    const h_alt = await sha256(s_alt);
+    let diffBits = 0;
+    for (let i = 0; i < h_orig.length; i++){
+      const a = parseInt(h_orig[i], 16);
+      const b = parseInt(h_alt[i], 16);
+      let x = a ^ b;
+      while (x){ diffBits += x & 1; x >>= 1; }
+    }
+    const totalBits = h_orig.length * 4;
+    const pct = ((diffBits / totalBits) * 100).toFixed(1);
+    cards.push({
+      title: "Effet d'avalanche (SHA-256)",
+      value: `+1 → ${diffBits}/${totalBits} bits changés (${pct}%)`,
+      cls: diffBits > totalBits * 0.4 ? "ok" : "warn",
+      icon: "🌊"
+    });
+  } catch (e){}
+
+  grid.innerHTML = cards.map(c => `
+    <div class="crypto-card">
+      <div class="crypto-card-title">${c.icon} ${c.title}</div>
+      <div class="crypto-card-value ${c.hash ? "hash" : ""} ${c.cls || ""} ${c.big ? "big" : ""}">${c.value}</div>
+    </div>
+  `).join("");
 }
 
 /* ============================================================
-   DÉFINITION DES LANGUES
+   LANGUES
    ============================================================ */
 const LANGUAGES = {
   latin: {
@@ -1115,8 +1144,7 @@ const LANGUAGES = {
     letters: "אבגדהוזחטיכלמנסעפצקרשת",
     examples: ["שלום","ישראל"],
     normalize: c => c.replace(/[\u0591-\u05C7]/g,"")
-      .replace(/ך/g,"כ").replace(/ם/g,"מ").replace(/ן/g,"נ")
-      .replace(/ף/g,"פ").replace(/ץ/g,"צ"),
+      .replace(/ך/g,"כ").replace(/ם/g,"מ").replace(/ן/g,"נ").replace(/ף/g,"פ").replace(/ץ/g,"צ"),
     isLetter: c => /[\u05D0-\u05EA]/.test(c)
   },
   arabic: {
@@ -1160,7 +1188,7 @@ function wordToBigInt(word, langKey){
 }
 
 /* ============================================================
-   SYSTÈMES DE NUMÉRATION AFFICHÉS
+   SYSTÈMES DE NUMÉRATION
    ============================================================ */
 const NUM_SYSTEMS = [
   { key:"latin",      name:"Latin",              flag:"🔤", sys:"Chiffres romains",          fn:toRoman,             css:"roman" },
@@ -1204,7 +1232,9 @@ const toastEl      = $("toast");
 const optSpaces    = $("optSpaces");
 const optOnlyUsed  = $("optOnlyUsed");
 const optMath      = $("optMath");
+const optCrypto    = $("optCrypto");
 const mathSection  = $("mathSection");
+const cryptoSection= $("cryptoSection");
 const modeTabs     = document.querySelectorAll(".mode-tab");
 
 let mode = "number";
@@ -1285,7 +1315,7 @@ sourceSelect.addEventListener("change", () => {
   toast(`${a.flag} ${a.name}`);
 });
 
-function render(){
+async function render(){
   const raw = input.value.trim();
 
   Object.values(cards).forEach(card => {
@@ -1307,9 +1337,8 @@ function render(){
       pipeSource.textContent = "Nombre";
       pipeBase.textContent = "10";
       renderMath(null);
-      Object.values(cards).forEach(c => {
-        c.style.display = optOnlyUsed.checked ? "none" : "";
-      });
+      await renderCrypto(null);
+      Object.values(cards).forEach(c => { c.style.display = optOnlyUsed.checked ? "none" : ""; });
       return;
     }
     n = BigInt(digits);
@@ -1324,9 +1353,8 @@ function render(){
       pipeSource.textContent = a.name;
       pipeBase.textContent = a.base;
       renderMath(null);
-      Object.values(cards).forEach(c => {
-        c.style.display = optOnlyUsed.checked ? "none" : "";
-      });
+      await renderCrypto(null);
+      Object.values(cards).forEach(c => { c.style.display = optOnlyUsed.checked ? "none" : ""; });
       return;
     }
     const word = letters.join("");
@@ -1340,6 +1368,7 @@ function render(){
     pipeSource.textContent = sourceLabel;
     pipeBase.textContent = baseLabel;
     renderMath(null);
+    await renderCrypto(null);
     return;
   }
 
@@ -1371,17 +1400,25 @@ function render(){
     c.style.display = optOnlyUsed.checked && c.classList.contains("empty") ? "none" : "";
   });
 
-  // Analyse mathématique
+  // Maths
   if (optMath.checked){
     mathSection.style.display = "block";
     renderMath(n);
   } else {
     mathSection.style.display = "none";
   }
+
+  // Crypto
+  if (optCrypto.checked){
+    cryptoSection.style.display = "block";
+    await renderCrypto(n);
+  } else {
+    cryptoSection.style.display = "none";
+  }
 }
 
 input.addEventListener("input", render);
-[optSpaces, optOnlyUsed, optMath].forEach(el => el.addEventListener("change", render));
+[optSpaces, optOnlyUsed, optMath, optCrypto].forEach(el => el.addEventListener("change", render));
 
 $("btnPaste").addEventListener("click", async () => {
   try { input.value = await navigator.clipboard.readText(); render(); }
@@ -1390,7 +1427,7 @@ $("btnPaste").addEventListener("click", async () => {
 
 $("btnExample").addEventListener("click", () => {
   if (mode === "number"){
-    const examples = ["5211815", "102559", "388599827", "1234567890", "42", "777", "2024", "100", "1024", "9999"];
+    const examples = ["5211815","102559","388599827","1234567890","42","777","2024","100","1024","9999"];
     const n = examples[Math.floor(Math.random()*examples.length)];
     input.value = n;
     render();

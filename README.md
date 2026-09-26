@@ -306,7 +306,170 @@ Test automatique : SHA-256(n) vs SHA-256(n+1). Résultat mesuré : 127/256 bits 
 | Bacon | 1605 | AABBABAB… |
 
 ---
+## 🚀 Installation
 
+### 📦 Option 1 — Téléchargement direct
+
+Télécharger le fichier `index.html` depuis le dépôt et l'ouvrir dans un navigateur :
+
+    curl -O https://raw.githubusercontent.com/USER/REPO/main/index.html
+    open index.html        # macOS
+    xdg-open index.html    # Linux
+    start index.html       # Windows
+
+### 🌐 Option 2 — Cloner le dépôt
+
+    git clone https://github.com/USER/REPO.git
+    cd REPO
+
+Puis ouvrir `index.html` dans un navigateur.
+
+### 🐳 Option 3 — Serveur local
+
+    python3 -m http.server 8000      # Python
+    npx serve                        # Node.js
+    php -S localhost:8000            # PHP
+
+Ouvrir ensuite http://localhost:8000
+
+### ✅ Prérequis
+
+| Prérequis | Minimum | Recommandé |
+|-----------|---------|------------|
+| Navigateur | Chrome 67+, Firefox 68+, Safari 14+ | Dernière version |
+| JavaScript | ES2020 (BigInt) | ES2022 |
+| Web Crypto | Pour MD5/SHA/HMAC/UUID | Support natif |
+| Résolution | 320px (mobile) | 1280px+ |
+
+Aucune installation Node.js, npm ou pip n'est nécessaire.
+
+---
+
+## 📖 Utilisation
+
+### 🎯 Mode Nombre
+
+1. Cliquer sur l'onglet **🔢 Nombre**
+2. Saisir un nombre : `5211815`
+3. Observer les conversions dans les 21 systèmes + analyse mathématique + crypto
+
+### 🔤 Mode Mot
+
+1. Cliquer sur l'onglet **🔤 Mot**
+2. Choisir la langue source (latin, grec, hébreu…)
+3. Saisir un mot : `FINANCE`
+4. Le mot est converti en nombre via sa base, puis dans tous les systèmes
+
+### 📋 Copier un résultat
+
+Survoler une carte → bouton **📋 Copier** apparaît.
+
+### 🎨 Options configurables
+
+| Option | Effet |
+|--------|-------|
+| ☑ Espaces tous les 3 chiffres | 5 211 815 vs 5211815 |
+| ☑ Masquer les systèmes non utilisés | Filtre les cartes vides |
+| ☑ Analyse mathématique | Affiche le panneau cyan |
+| ☑ Cryptographie | Affiche le panneau rose |
+
+---
+
+## 🏗️ Architecture technique
+
+### 📂 Structure du fichier
+
+    index.html
+    ├── head
+    │   ├── meta (charset, viewport)
+    │   ├── title
+    │   └── style (~600 lignes CSS)
+    ├── body
+    │   ├── Header (titre + logo)
+    │   ├── Mode tabs (Nombre/Mot)
+    │   ├── Source selector (langue)
+    │   ├── Input group (textarea)
+    │   ├── Options (checkboxes)
+    │   ├── Math section (analyse)
+    │   ├── Crypto section (empreintes)
+    │   ├── Results grid (21 cartes)
+    │   ├── Pipeline indicator
+    │   └── Help footer
+    └── script
+        ├── Numérations (21 fonctions)
+        ├── Bases (toBase, toBase60)
+        ├── Analyse math (primalité, factorisation)
+        ├── Crypto (MD5, SHA-3, Web Crypto, HMAC)
+        ├── Langues (7 alphabets)
+        ├── UI (rendu, événements)
+        └── Init (vidage forcé, raccourcis)
+
+### 🧠 Algorithme central — Conversion mot → nombre
+
+Le mot est normalisé, ses lettres filtrées, puis converti en base N (N = nombre de lettres de l'alphabet source). Chaque lettre contribue à un BigInt :
+
+    n = n × base + (index + 1)
+
+C'est une **bijection** : chaque mot produit un nombre unique, réversible dans l'autre sens.
+
+### 🎨 Design system
+
+Palette tricolore + accents par section :
+
+| Variable | Code | Usage |
+|----------|------|-------|
+| `--bleu` | `#002395` | Fond principal, accents |
+| `--blanc` | `#ffffff` | Texte, cartes |
+| `--rouge` | `#ed2939` | Accents chauds, Chinois |
+| `--or` | `#d4af37` | Résultats numériques |
+| `--cyan` | `#06b6d4` | Section mathématique |
+| `--rose` | `#ec4899` | Section cryptographique |
+| `--vert` | `#16a34a` | Validations OK |
+| `--violet` | `#7c3aed` | Accents divers |
+
+---
+
+## 🧪 Tests et validation
+
+### ✅ Vecteurs de test
+
+**MD5**
+
+    md5("")      = d41d8cd98f00b204e9800998ecf8427e
+    md5("hello") = 5d41402abc4b2a76b9719d911017c592
+
+**SHA-256**
+
+    sha256("")      = e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+    sha256("hello") = 2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824
+
+**SHA-3 (Keccak-256)**
+
+    keccak256("") = c5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470
+
+**Mathématiques**
+
+    isPrime(5211815n) = false
+    factorize(5211815n) = [5n, 7n, 43n, 3463n]
+    divisors(5211815n).length = 16
+    isPerfectSquare(1024n) = true
+    isFibonacci(5211815n) = false
+
+**Numérations**
+
+    toRoman(5211815n) = "((V)CCXI)DCCCXV"
+    toBase60(5211815n) = "24:7:43:35"
+    toBase(5211815n, 16) = "4F86A7"
+
+### 🎯 Effet d'avalanche mesuré
+
+| Algorithme | Bits changés (+1) | Pourcentage | Qualité |
+|-----------|-------------------|-------------|---------|
+| SHA-256 | 127/256 | 49.6% | Excellent |
+| MD5 | ~64/128 | ~50% | Bon |
+| djb2 | ~16/32 | ~50% | Bon |
+
+---
 
 <div align="center">
 

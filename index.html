@@ -1,0 +1,1432 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Numérations universelles + Analyse mathématique</title>
+<style>
+  :root{
+    --bleu:#002395; --bleu-clair:#1e40af; --bleu-fonce:#001a6e;
+    --blanc:#ffffff; --rouge:#ed2939; --or:#d4af37;
+    --vert:#16a34a; --violet:#7c3aed; --cyan:#06b6d4;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{
+    font-family:'Inter',system-ui,-apple-system,sans-serif;
+    background:linear-gradient(135deg, var(--bleu-fonce) 0%, var(--bleu) 50%, var(--bleu-clair) 100%);
+    color:var(--blanc); min-height:100vh;
+    padding:24px 16px 60px;
+    display:flex; justify-content:center;
+    -webkit-font-smoothing:antialiased;
+  }
+  .dashboard{
+    width:100%; max-width:1500px;
+    background:rgba(255,255,255,.04);
+    border-radius:20px; padding:32px 36px 36px;
+    box-shadow:0 30px 80px rgba(0,0,0,.4), 0 0 0 1px rgba(255,255,255,.08);
+    backdrop-filter:blur(20px);
+    position:relative; overflow:hidden;
+  }
+  .dashboard::before{
+    content:''; position:absolute; top:0; left:0; right:0; height:4px;
+    background:linear-gradient(90deg, var(--bleu) 0%, var(--bleu) 33%,
+      var(--blanc) 33%, var(--blanc) 66%, var(--rouge) 66%, var(--rouge) 100%);
+  }
+  header{position:relative; z-index:1; margin-bottom:24px;}
+  h1{
+    font-size:1.5rem; font-weight:700; margin-bottom:6px;
+    display:flex; align-items:center; gap:12px;
+  }
+  h1 .logo{
+    display:inline-flex; align-items:center; justify-content:center;
+    width:42px; height:42px; border-radius:10px;
+    background:linear-gradient(135deg, var(--bleu) 0%, var(--bleu) 50%,
+      var(--rouge) 50%, var(--rouge) 100%);
+    color:var(--blanc); font-size:1.2rem; font-weight:800;
+    box-shadow:0 8px 24px rgba(0,0,0,.4);
+    border:2px solid rgba(255,255,255,.15);
+  }
+  h1 .grad{
+    background:linear-gradient(90deg, var(--blanc) 0%, var(--blanc) 50%, var(--or) 100%);
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+  }
+  .subtitle{color:rgba(255,255,255,.7); font-size:.85rem; margin-left:54px;}
+
+  .mode-tabs{
+    display:flex; gap:6px; margin-bottom:16px;
+    background:rgba(0,0,0,.25); padding:5px;
+    border:1px solid rgba(255,255,255,.1); border-radius:12px;
+    width:fit-content; position:relative; z-index:1;
+  }
+  .mode-tab{
+    padding:9px 20px; border-radius:8px;
+    font-size:.85rem; font-weight:600;
+    color:rgba(255,255,255,.65); cursor:pointer;
+    user-select:none; transition:.2s;
+    display:flex; align-items:center; gap:8px;
+  }
+  .mode-tab:hover{color:var(--blanc);}
+  .mode-tab.active{
+    background:linear-gradient(135deg,var(--blanc),#f0f0f0);
+    color:var(--bleu);
+    box-shadow:0 6px 20px rgba(255,255,255,.25);
+  }
+
+  .source-selector{
+    display:flex; gap:8px; margin-bottom:16px;
+    background:rgba(0,0,0,.25); padding:8px 12px;
+    border:1px solid rgba(255,255,255,.1); border-radius:10px;
+    align-items:center; flex-wrap:wrap; position:relative; z-index:1;
+  }
+  .source-selector label{
+    font-size:.75rem; text-transform:uppercase; letter-spacing:.12em;
+    color:rgba(255,255,255,.7); font-weight:600; margin-right:6px;
+  }
+  select{
+    background:rgba(255,255,255,.95);
+    border:1px solid rgba(255,255,255,.2);
+    color:var(--bleu); padding:7px 12px; border-radius:6px;
+    font-family:inherit; font-size:.85rem; font-weight:600;
+    cursor:pointer; outline:none; min-width:250px;
+  }
+
+  .input-group{margin-bottom:20px; position:relative; z-index:1;}
+  .input-label{
+    display:flex; justify-content:space-between; align-items:center;
+    margin-bottom:8px;
+  }
+  .input-label span:first-child{
+    font-size:.72rem; text-transform:uppercase; letter-spacing:.12em;
+    color:rgba(255,255,255,.75); font-weight:600;
+  }
+  .input-label .actions{display:flex; gap:6px;}
+  .mini-btn{
+    font-size:.68rem; padding:4px 10px; border-radius:6px;
+    background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.15);
+    color:rgba(255,255,255,.8); cursor:pointer; transition:.2s;
+    font-weight:600;
+  }
+  .mini-btn:hover{
+    background:rgba(255,255,255,.2); border-color:var(--rouge); color:var(--blanc);
+  }
+
+  textarea{
+    width:100%; min-height:70px; padding:16px 18px;
+    font-size:1.4rem; font-family:'JetBrains Mono',monospace;
+    background:rgba(0,0,0,.3); border:2px solid rgba(255,255,255,.15);
+    border-radius:12px; color:var(--blanc); outline:none;
+    resize:vertical; transition:all .25s;
+    letter-spacing:.05em;
+  }
+  textarea::placeholder{color:rgba(255,255,255,.3);}
+  textarea:focus{
+    border-color:var(--rouge);
+    box-shadow:0 0 0 4px rgba(237,41,57,.15);
+    background:rgba(0,0,0,.4);
+  }
+  textarea.rtl{direction:rtl; text-align:right;}
+  textarea.numeric{font-size:1.8rem; color:var(--or); font-weight:600;}
+  .char-count{
+    text-align:right; font-size:.7rem; color:rgba(255,255,255,.5);
+    margin-top:6px; font-family:'JetBrains Mono',monospace;
+  }
+
+  .options{
+    display:flex; gap:16px; flex-wrap:wrap;
+    padding:12px 16px; background:rgba(0,0,0,.25);
+    border:1px solid rgba(255,255,255,.1); border-radius:10px;
+    margin-bottom:20px; position:relative; z-index:1;
+  }
+  .opt{
+    display:flex; align-items:center; gap:8px;
+    font-size:.8rem; color:rgba(255,255,255,.85); cursor:pointer;
+  }
+  .opt input[type="checkbox"]{
+    appearance:none; width:16px; height:16px;
+    border:2px solid rgba(255,255,255,.4); border-radius:4px;
+    cursor:pointer; position:relative; transition:.2s;
+  }
+  .opt input[type="checkbox"]:checked{
+    background:var(--rouge); border-color:var(--rouge);
+  }
+  .opt input[type="checkbox"]:checked::after{
+    content:'✓'; position:absolute; top:-2px; left:2px;
+    color:var(--blanc); font-size:.75rem; font-weight:900;
+  }
+
+  /* ===== SECTION CALCULS MATHÉMATIQUES ===== */
+  .math-section{
+    margin:20px 0;
+    background:linear-gradient(135deg, rgba(6,182,212,.08), rgba(124,58,237,.08));
+    border:2px solid rgba(6,182,212,.35);
+    border-radius:16px; padding:20px 22px;
+    position:relative; z-index:1;
+  }
+  .math-section h2{
+    font-size:.85rem; text-transform:uppercase;
+    letter-spacing:.15em; color:var(--cyan);
+    font-weight:700; margin-bottom:16px;
+    display:flex; align-items:center; gap:10px;
+  }
+  .math-section h2::before{
+    content:'∑'; font-size:1.3rem; color:var(--cyan);
+  }
+  .math-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(280px, 1fr));
+    gap:12px;
+  }
+  .math-card{
+    background:rgba(0,0,0,.35);
+    border:1px solid rgba(6,182,212,.2);
+    border-radius:10px; padding:12px 14px;
+    transition:.2s;
+  }
+  .math-card:hover{
+    border-color:rgba(6,182,212,.5);
+    background:rgba(6,182,212,.08);
+    transform:translateY(-2px);
+  }
+  .math-card-title{
+    font-size:.65rem; text-transform:uppercase;
+    letter-spacing:.1em; color:var(--cyan);
+    font-weight:700; margin-bottom:6px;
+    display:flex; align-items:center; gap:6px;
+  }
+  .math-card-value{
+    font-family:'JetBrains Mono',monospace;
+    font-size:.95rem; color:var(--blanc);
+    line-height:1.5; word-break:break-all;
+  }
+  .math-card-value.big{
+    font-size:1.1rem; color:var(--or); font-weight:700;
+  }
+  .math-card-value.green{color:var(--vert);}
+  .math-card-value.violet{color:var(--violet);}
+
+  .formula{
+    font-family:'JetBrains Mono',monospace;
+    font-size:.85rem;
+    background:rgba(0,0,0,.5);
+    border-left:3px solid var(--cyan);
+    padding:8px 12px;
+    border-radius:6px;
+    margin-top:6px;
+    color:var(--blanc);
+    line-height:1.6;
+  }
+  .formula b{color:var(--or);}
+
+  /* ===== RÉSULTATS ===== */
+  .results{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(240px, 1fr));
+    gap:12px; position:relative; z-index:1;
+  }
+  .result-card{
+    background:rgba(255,255,255,.06);
+    border:2px solid rgba(255,255,255,.1);
+    border-radius:12px; padding:14px;
+    display:flex; flex-direction:column; gap:8px;
+    position:relative; transition:all .25s;
+    min-height:150px; backdrop-filter:blur(10px);
+  }
+  .result-card:hover{
+    border-color:rgba(255,255,255,.3);
+    transform:translateY(-2px);
+    box-shadow:0 12px 32px rgba(0,0,0,.35);
+    background:rgba(255,255,255,.1);
+  }
+  .result-card.source{
+    border-color:var(--blanc);
+    box-shadow:0 0 0 2px rgba(255,255,255,.3);
+  }
+  .result-card.zh{
+    border-color:var(--rouge);
+    background:linear-gradient(180deg, rgba(237,41,57,.12), rgba(255,255,255,.05));
+  }
+  .result-card.empty{opacity:.35;}
+
+  .card-head{
+    display:flex; align-items:center; gap:8px; margin-bottom:2px;
+  }
+  .card-flag{font-size:1.2rem;}
+  .card-title{
+    font-size:.7rem; text-transform:uppercase; letter-spacing:.1em;
+    color:rgba(255,255,255,.75); font-weight:700; flex:1;
+  }
+  .card-system{
+    font-size:.65rem; color:rgba(255,255,255,.5);
+    font-style:italic; margin-bottom:4px;
+  }
+  .card-value{
+    font-size:1.3rem; font-weight:700; line-height:1.4;
+    word-break:break-all; flex:1;
+    display:flex; align-items:center;
+    color:var(--blanc); min-height:38px;
+  }
+  .card-value.rtl{direction:rtl; justify-content:flex-end; text-align:right; font-size:1.5rem;}
+  .card-value.roman{font-family:'Times New Roman',serif; letter-spacing:.15em; color:var(--or);}
+  .card-value.greek-val{font-family:'Noto Sans',sans-serif; color:#ffd700;}
+  .card-value.hebrew-val{font-family:'Noto Sans Hebrew',sans-serif; color:#fbbf24;}
+  .card-value.jp-val{font-family:'Noto Sans JP',sans-serif;}
+  .card-value.zh-val{
+    font-family:'Noto Serif SC','Songti SC',serif;
+    color:var(--rouge); font-size:1.2rem;
+    letter-spacing:.06em;
+  }
+  .card-value.decimal{
+    font-family:'JetBrains Mono',monospace;
+    font-size:1.15rem;
+  }
+
+  .card-actions{display:flex; gap:6px; opacity:0; transition:.2s;}
+  .result-card:hover .card-actions{opacity:1;}
+  .card-btn{
+    font-size:.65rem; padding:3px 8px; border-radius:5px;
+    background:rgba(255,255,255,.1);
+    border:1px solid rgba(255,255,255,.2);
+    color:var(--blanc); cursor:pointer; transition:.2s;
+    font-weight:600; font-family:inherit;
+  }
+  .card-btn:hover{background:var(--rouge); border-color:var(--rouge);}
+
+  .pipeline-mini{
+    display:flex; align-items:center; gap:8px;
+    padding:12px 16px; background:rgba(0,0,0,.25);
+    border:1px solid rgba(255,255,255,.1); border-radius:10px;
+    margin-top:20px; font-size:.78rem;
+    color:rgba(255,255,255,.75); font-family:'JetBrains Mono',monospace;
+    flex-wrap:wrap; position:relative; z-index:1;
+  }
+  .pipeline-mini b{color:var(--blanc);}
+  .pipeline-mini .rouge{color:var(--rouge); font-weight:700;}
+
+  .toast{
+    position:fixed; bottom:30px; left:50%;
+    transform:translateX(-50%) translateY(20px);
+    padding:12px 22px; background:var(--blanc);
+    border:2px solid var(--bleu); border-radius:10px;
+    color:var(--bleu); font-size:.85rem; font-weight:700;
+    box-shadow:0 12px 40px rgba(0,0,0,.4);
+    opacity:0; pointer-events:none; transition:all .3s; z-index:100;
+  }
+  .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+  .toast.ok{border-color:var(--bleu); color:var(--bleu);}
+  .toast.err{border-color:var(--rouge); color:var(--rouge);}
+
+  .help{
+    margin-top:20px; padding:14px 16px;
+    background:rgba(0,0,0,.25);
+    border:1px solid rgba(255,255,255,.1);
+    border-radius:10px; font-size:.78rem;
+    color:rgba(255,255,255,.75); line-height:1.7;
+    position:relative; z-index:1;
+  }
+  .help b{color:var(--rouge); font-weight:700;}
+  .help code{
+    background:rgba(255,255,255,.1); padding:1px 6px;
+    border-radius:4px; font-family:'JetBrains Mono',monospace;
+    font-size:.72rem; color:var(--blanc);
+  }
+
+  .tricolore-bar{
+    display:flex; height:3px; border-radius:3px;
+    overflow:hidden; margin:24px 0 0;
+    position:relative; z-index:1;
+  }
+  .tricolore-bar span{flex:1;}
+  .tricolore-bar .b{background:var(--bleu);}
+  .tricolore-bar .w{background:var(--blanc);}
+  .tricolore-bar .r{background:var(--rouge);}
+</style>
+</head>
+<body>
+<div class="dashboard">
+
+  <header>
+    <h1>
+      <span class="logo">金</span>
+      <span class="grad">Numérations universelles + Analyse mathématique</span>
+    </h1>
+    <p class="subtitle">Un <b>nombre</b> ou un <b>mot</b> → tous les systèmes de numération historiques + analyse mathématique encyclopédique.</p>
+  </header>
+
+  <div class="mode-tabs">
+    <div class="mode-tab active" data-mode="number">🔢 Nombre</div>
+    <div class="mode-tab" data-mode="word">🔤 Mot</div>
+  </div>
+
+  <div class="source-selector" id="langSelector" style="display:none">
+    <label for="sourceSelect">Langue source :</label>
+    <select id="sourceSelect"></select>
+  </div>
+
+  <div class="input-group">
+    <div class="input-label">
+      <span id="inputLabel">🔢 Entrez un nombre (chiffres arabes)</span>
+      <div class="actions">
+        <button class="mini-btn" id="btnPaste">📋 Coller</button>
+        <button class="mini-btn" id="btnExample">✨ Exemple</button>
+        <button class="mini-btn" id="btnClear">✕ Vider</button>
+      </div>
+    </div>
+    <textarea id="input" spellcheck="false" autocomplete="off"
+      autocorrect="off" autocapitalize="off"
+      placeholder="Ex : 5211815"></textarea>
+    <div class="char-count" id="count">0 chiffre</div>
+  </div>
+
+  <div class="options">
+    <label class="opt"><input type="checkbox" id="optSpaces" checked> Espaces tous les 3 chiffres (base 10)</label>
+    <label class="opt"><input type="checkbox" id="optOnlyUsed"> Masquer les systèmes non utilisés</label>
+    <label class="opt"><input type="checkbox" id="optMath" checked> Afficher l'analyse mathématique</label>
+  </div>
+
+  <!-- ===== SECTION CALCULS MATHÉMATIQUES ===== -->
+  <div class="math-section" id="mathSection">
+    <h2>Analyse mathématique encyclopédique</h2>
+    <div class="math-grid" id="mathGrid">
+      <div class="math-card" style="grid-column:1/-1;text-align:center;color:rgba(255,255,255,.4);">
+        Entrez un nombre pour voir son analyse mathématique…
+      </div>
+    </div>
+  </div>
+
+  <div class="results" id="results"></div>
+
+  <div class="pipeline-mini">
+    <span>📍 Source : <b id="pipeSource">—</b></span>
+    <span>→</span>
+    <span>Base <b id="pipeBase">—</b></span>
+    <span>→</span>
+    <span><b id="pipeNum">—</b> (base 10)</span>
+    <span>→</span>
+    <span class="rouge">🌍 Numérations du monde entier</span>
+  </div>
+
+  <div class="help">
+    <b>Analyse mathématique :</b> décomposition en facteurs premiers, diviseurs, propriétés
+    (parité, primalité, carré/cube parfait, Fibonacci, palindrome, Harshad…), représentations
+    dans différentes bases (2, 8, 16, 60), somme des chiffres, factorielle approchée, etc.<br>
+    <b>Systèmes de numération :</b> Romain, Grec ancien, Hébreu, Arabe oriental, Japonais,
+    Chinois financier, Cyrillique slave, Devanagari, séparateurs européens.
+  </div>
+
+  <div class="tricolore-bar">
+    <span class="b"></span><span class="w"></span><span class="r"></span>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============================================================
+   SYSTÈMES DE NUMÉRATION
+   ============================================================ */
+
+/* ---------- Chiffres romains ---------- */
+function toRoman(n){
+  if (n === 0n) return "N";
+  if (n < 0n) return "−" + toRoman(-n);
+  if (n > 3999n) return "(" + toRoman(n / 1000n) + ")" + toRoman(n % 1000n);
+  const map = [
+    [1000n,"M"],[900n,"CM"],[500n,"D"],[400n,"CD"],
+    [100n,"C"],[90n,"XC"],[50n,"L"],[40n,"XL"],
+    [10n,"X"],[9n,"IX"],[5n,"V"],[4n,"IV"],[1n,"I"]
+  ];
+  let s = "", x = n;
+  for (const [v, sym] of map){ while (x >= v){ s += sym; x -= v; } }
+  return s;
+}
+
+/* ---------- Grec ancien ---------- */
+const GREEK_NUM = {
+  1:"Α",2:"Β",3:"Γ",4:"Δ",5:"Ε",6:"Ϛ",7:"Ζ",8:"Η",9:"Θ",
+  10:"Ι",20:"Κ",30:"Λ",40:"Μ",50:"Ν",60:"Ξ",70:"Ο",80:"Π",90:"Ϟ",
+  100:"Ρ",200:"Σ",300:"Τ",400:"Υ",500:"Φ",600:"Χ",700:"Ψ",800:"Ω",900:"Ϡ"
+};
+function decompose3(num){
+  return { h: Math.floor(num / 100) * 100, d: Math.floor((num % 100) / 10) * 10, u: num % 10 };
+}
+function toGreek(n){
+  if (n === 0n) return "ΜΗΔΕΝ";
+  if (n < 0n) return "−" + toGreek(-n);
+  let s = "", x = n;
+  const millions = x / 1000000n;
+  if (millions > 0n){ s += "Μ" + toGreek(millions) + "·"; x %= 1000000n; }
+  const thousands = x / 1000n;
+  if (thousands > 0n){
+    const t = Number(thousands % 1000n);
+    const { h, d, u } = decompose3(t);
+    let tStr = "";
+    if (h) tStr += GREEK_NUM[h];
+    if (d) tStr += GREEK_NUM[d];
+    if (u) tStr += GREEK_NUM[u];
+    s += "͵" + tStr;
+    x %= 1000n;
+  }
+  const rest = Number(x);
+  if (rest > 0){
+    const { h, d, u } = decompose3(rest);
+    let str = "";
+    if (h) str += GREEK_NUM[h];
+    if (d) str += GREEK_NUM[d];
+    if (u) str += GREEK_NUM[u];
+    if (s) s += "·";
+    s += str;
+  }
+  return s || "ΜΗΔΕΝ";
+}
+
+/* ---------- Hébreu (gematria) — CORRIGÉ ---------- */
+const HEBREW_NUM = {
+  1:"א",2:"ב",3:"ג",4:"ד",5:"ה",6:"ו",7:"ז",8:"ח",9:"ט",
+  10:"י",20:"כ",30:"ל",40:"מ",50:"נ",60:"ס",70:"ע",80:"פ",90:"צ",
+  100:"ק",200:"ר",300:"ש",400:"ת"
+};
+function hebrewGroup(g, withGershayim){
+  if (g === 0) return "";
+  let out = "";
+  const h = Math.floor(g / 100);
+  const d = Math.floor((g % 100) / 10);
+  const u = g % 10;
+  if (h > 0){
+    if (h <= 4) out += HEBREW_NUM[h * 100];
+    else { out += "ת"; const rest = (h - 4) * 100; if (rest > 0) out += HEBREW_NUM[rest]; }
+  }
+  if (d === 1 && u === 5) out += "טו";
+  else if (d === 1 && u === 6) out += "טז";
+  else { if (d > 0) out += HEBREW_NUM[d * 10]; if (u > 0) out += HEBREW_NUM[u]; }
+  if (withGershayim){
+    const chars = [...out];
+    if (chars.length >= 2) out = chars.slice(0, -1).join("") + "״" + chars.slice(-1).join("");
+  }
+  return out;
+}
+function toHebrew(n){
+  if (n === 0n) return "אפס";
+  if (n < 0n) return "−" + toHebrew(-n);
+  const groups = [];
+  let x = n;
+  while (x > 0n){ groups.unshift(Number(x % 1000n)); x /= 1000n; }
+  const N = groups.length;
+  const parts = [];
+  for (let i = 0; i < N; i++){
+    const g = groups[i];
+    if (g === 0) continue;
+    const pos = N - 1 - i;
+    // Gershayim uniquement pour le groupe des unités (pos === 0)
+    let str = hebrewGroup(g, pos === 0);
+    if (pos > 0) str += "׳".repeat(pos);
+    parts.push(str);
+  }
+  return parts.join(" ");
+}
+
+/* ---------- Arabe oriental ---------- */
+const ARABIC_DIGITS = "٠١٢٣٤٥٦٧٨٩";
+function toArabic(n){
+  if (n < 0n) return "−" + toArabic(-n);
+  return n.toString().split("").map(d => ARABIC_DIGITS[+d]).join("");
+}
+
+/* ---------- Japonais ---------- */
+const JP_DIGITS = ["零","一","二","三","四","五","六","七","八","九"];
+const JP_INNER = ["","十","百","千"];
+const JP_BIG = ["","万","億","兆","京","垓","秭","穰","溝","澗"];
+function fourDigitsJP(g){
+  if (g === 0) return "";
+  const s = String(g).padStart(4,"0");
+  let out = "", zero = false;
+  for (let i = 0; i < 4; i++){
+    const d = +s[i], pos = 3 - i;
+    if (d === 0){ zero = true; }
+    else {
+      if (zero && out) out += "零";
+      zero = false;
+      if (!(d === 1 && pos === 1)) out += JP_DIGITS[d];
+      out += JP_INNER[pos];
+    }
+  }
+  return out;
+}
+function toJapanese(n){
+  if (n === 0n) return "零";
+  if (n < 0n) return "−" + toJapanese(-n);
+  const groups = [];
+  let x = n;
+  while (x > 0n){ groups.unshift(Number(x % 10000n)); x /= 10000n; }
+  const parts = [];
+  let prevZero = false;
+  for (let i = 0; i < groups.length; i++){
+    const g = groups[i];
+    const pos = groups.length - 1 - i;
+    const unit = pos < JP_BIG.length ? JP_BIG[pos] : "";
+    if (g === 0){ prevZero = true; continue; }
+    if (i > 0 && (prevZero || g < 1000)) parts.push("零");
+    parts.push(fourDigitsJP(g) + unit);
+    prevZero = false;
+  }
+  return parts.join("").replace(/零+/g,"零").replace(/零$/,"");
+}
+
+/* ---------- Chinois financier ---------- */
+const ZH_DIGITS = ["零","壹","贰","叁","肆","伍","陆","柒","捌","玖"];
+const ZH_INNER = ["","拾","佰","仟"];
+const ZH_BIG = ["","万","亿","兆","京","垓","秭","穰","沟","涧"];
+function fourDigitsZH(g){
+  if (g === 0) return "";
+  const s = String(g).padStart(4,"0");
+  let out = "", zero = false;
+  for (let i = 0; i < 4; i++){
+    const d = +s[i], pos = 3 - i;
+    if (d === 0){ zero = true; }
+    else {
+      if (zero && out) out += "零";
+      zero = false;
+      out += ZH_DIGITS[d] + ZH_INNER[pos];
+    }
+  }
+  return out;
+}
+function toChineseFinancial(n){
+  if (n === 0n) return "零";
+  if (n < 0n) return "负" + toChineseFinancial(-n);
+  const groups = [];
+  let x = n;
+  while (x > 0n){ groups.unshift(Number(x % 10000n)); x /= 10000n; }
+  const parts = [];
+  let prevZero = false;
+  for (let i = 0; i < groups.length; i++){
+    const g = groups[i];
+    const pos = groups.length - 1 - i;
+    const unit = pos < ZH_BIG.length ? ZH_BIG[pos] : "×10^" + (4 * pos);
+    if (g === 0){ prevZero = true; continue; }
+    if (i > 0 && (prevZero || g < 1000)) parts.push("零");
+    parts.push(fourDigitsZH(g) + unit);
+    prevZero = false;
+  }
+  return parts.join("").replace(/零+/g,"零").replace(/零$/,"");
+}
+
+/* ---------- Cyrillique slave ---------- */
+const CYR_NUM = {
+  1:"А",2:"В",3:"Г",4:"Д",5:"Е",6:"Ѕ",7:"З",8:"И",9:"Ѳ",
+  10:"І",20:"К",30:"Л",40:"М",50:"Н",60:"Ѯ",70:"О",80:"П",90:"Ч",
+  100:"Р",200:"С",300:"Т",400:"У",500:"Ф",600:"Х",700:"Ѱ",800:"Ѡ",900:"Ц"
+};
+function toCyrillicNumber(n){
+  if (n === 0n) return "НУЛЬ";
+  if (n < 0n) return "−" + toCyrillicNumber(-n);
+  const groups = [];
+  let x = n;
+  while (x > 0n){ groups.unshift(Number(x % 1000n)); x /= 1000n; }
+  const N = groups.length;
+  const parts = [];
+  for (let i = 0; i < N; i++){
+    const g = groups[i];
+    if (g === 0) continue;
+    const h = Math.floor(g / 100) * 100;
+    const d = Math.floor((g % 100) / 10) * 10;
+    const u = g % 10;
+    let part = "";
+    if (h) part += CYR_NUM[h];
+    if (d) part += CYR_NUM[d];
+    if (u) part += CYR_NUM[u];
+    const pos = N - 1 - i;
+    if (pos === 0) parts.push(part);
+    else parts.push("͵".repeat(pos) + part);
+  }
+  return "҂" + parts.join("·");
+}
+
+/* ---------- Devanagari ---------- */
+const DEV_DIGITS = "०१२३४५६७८९";
+function toDevanagari(n){
+  if (n < 0n) return "−" + toDevanagari(-n);
+  return n.toString().split("").map(d => DEV_DIGITS[+d]).join("");
+}
+
+/* ---------- Séparateurs ---------- */
+function fmtLocale(n, sep){
+  return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, sep);
+}
+
+/* ============================================================
+   ANALYSE MATHÉMATIQUE
+   ============================================================ */
+
+/* --- Liste des nombres premiers (petits, pour tests) --- */
+function sievePrimes(limit){
+  const sieve = new Uint8Array(limit + 1);
+  const primes = [];
+  for (let i = 2; i <= limit; i++){
+    if (!sieve[i]){
+      primes.push(i);
+      for (let j = i * i; j <= limit; j += i) sieve[j] = 1;
+    }
+  }
+  return primes;
+}
+const SMALL_PRIMES = sievePrimes(10000);
+
+/* --- Test de primalité (Miller-Rabin BigInt) --- */
+function isPrime(n){
+  if (n < 2n) return false;
+  if (n === 2n || n === 3n) return true;
+  if (n % 2n === 0n) return false;
+  // Petits facteurs
+  for (const p of SMALL_PRIMES){
+    const bp = BigInt(p);
+    if (n === bp) return true;
+    if (n % bp === 0n) return false;
+  }
+  // Miller-Rabin déterministe pour n < 3.3e24
+  let d = n - 1n, r = 0n;
+  while (d % 2n === 0n){ d /= 2n; r++; }
+  const witnesses = [2n, 3n, 5n, 7n, 11n, 13n, 17n, 19n, 23n, 29n, 31n, 37n];
+  for (const a of witnesses){
+    if (a >= n) continue;
+    let x = modPow(a, d, n);
+    if (x === 1n || x === n - 1n) continue;
+    let cont = false;
+    for (let i = 1n; i < r; i++){
+      x = (x * x) % n;
+      if (x === n - 1n){ cont = true; break; }
+    }
+    if (!cont) return false;
+  }
+  return true;
+}
+
+function modPow(base, exp, mod){
+  let result = 1n;
+  base %= mod;
+  while (exp > 0n){
+    if (exp & 1n) result = (result * base) % mod;
+    base = (base * base) % mod;
+    exp >>= 1n;
+  }
+  return result;
+}
+
+/* --- Factorisation en facteurs premiers (trial division + Pollard rho si besoin) --- */
+function factorize(n){
+  if (n < 2n) return [];
+  const factors = [];
+  // Trial division par petits premiers
+  for (const p of SMALL_PRIMES){
+    const bp = BigInt(p);
+    if (bp * bp > n) break;
+    while (n % bp === 0n){
+      factors.push(bp);
+      n /= bp;
+    }
+  }
+  if (n > 1n){
+    // Si n est encore grand, essayer Pollard's rho
+    if (n < 1000000n){
+      // Vérifier si premier
+      if (isPrime(n)) factors.push(n);
+      else {
+        // Décomposer naïvement par ce qui reste
+        let x = n;
+        for (let d = 2n; d * d <= x; d++){
+          while (x % d === 0n){ factors.push(d); x /= d; }
+        }
+        if (x > 1n) factors.push(x);
+      }
+    } else {
+      // Pour les très grands, on s'arrête à la partie trial-divisée
+      if (isPrime(n)) factors.push(n);
+      else factors.push(n); // marqué comme composite non décomposé
+    }
+  }
+  return factors;
+}
+
+/* --- Diviseurs --- */
+function divisors(n){
+  if (n < 1n) return [];
+  const divs = [];
+  const limit = sqrtBigInt(n);
+  for (let i = 1n; i <= limit; i++){
+    if (n % i === 0n){
+      divs.push(i);
+      const q = n / i;
+      if (q !== i) divs.push(q);
+    }
+  }
+  return divs.sort((a, b) => a < b ? -1 : a > b ? 1 : 0);
+}
+
+function sqrtBigInt(n){
+  if (n < 0n) return 0n;
+  if (n < 2n) return n;
+  let x = n, y = (x + 1n) / 2n;
+  while (y < x){ x = y; y = (x + n / x) / 2n; }
+  return x;
+}
+
+/* --- Propriétés --- */
+function isPerfectSquare(n){
+  if (n < 0n) return false;
+  const s = sqrtBigInt(n);
+  return s * s === n;
+}
+function isPerfectCube(n){
+  if (n < 0n) return false;
+  const c = cbrtBigInt(n);
+  return c * c * c === n;
+}
+function cbrtBigInt(n){
+  if (n < 0n) return -cbrtBigInt(-n);
+  if (n < 2n) return n;
+  let x = n, y = (2n * x + n / (x * x)) / 3n;
+  while (y < x){ x = y; y = (2n * x + n / (x * x)) / 3n; }
+  return x;
+}
+function digitSum(n){
+  return n.toString().split("").reduce((a, d) => a + BigInt(+d), 0n);
+}
+function isPalindrome(s){
+  const clean = s.replace(/[^0-9]/g, "");
+  return clean === clean.split("").reverse().join("");
+}
+function isFibonacci(n){
+  if (n < 0n) return false;
+  const test1 = 5n * n * n + 4n;
+  const test2 = 5n * n * n - 4n;
+  return isPerfectSquare(test1) || isPerfectSquare(test2);
+}
+function isHarshad(n){
+  if (n <= 0n) return false;
+  const s = digitSum(n);
+  return s > 0n && n % s === 0n;
+}
+
+/* --- Bases --- */
+function toBase(n, base){
+  if (n === 0n) return "0";
+  const digits = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  let s = "", x = n;
+  const b = BigInt(base);
+  while (x > 0n){ s = digits[Number(x % b)] + s; x /= b; }
+  return s;
+}
+
+/* --- Notation scientifique --- */
+function toScientific(n){
+  if (n === 0n) return "0";
+  const s = n.toString();
+  const exp = s.length - 1;
+  const mantissa = s[0] + (s.length > 1 ? "." + s.slice(1, 6) : "");
+  return `${mantissa} × 10^${exp}`;
+}
+
+/* --- Nombre de chiffres --- */
+function digitCount(n){
+  return n.toString().replace("-", "").length;
+}
+
+/* --- Factorielle approchée (Stirling) --- */
+function stirlingLog(n){
+  if (n < 2n) return 0;
+  const x = Number(n);
+  return x * Math.log(x) - x + 0.5 * Math.log(2 * Math.PI * x);
+}
+
+/* ============================================================
+   AFFICHAGE DE L'ANALYSE MATHÉMATIQUE
+   ============================================================ */
+function renderMath(n){
+  const grid = $("mathGrid");
+  if (n === null || n === 0n){
+    grid.innerHTML = `<div class="math-card" style="grid-column:1/-1;text-align:center;color:rgba(255,255,255,.4);">Entrez un nombre pour voir son analyse mathématique…</div>`;
+    return;
+  }
+
+  const cards = [];
+
+  /* --- 1. Valeur --- */
+  cards.push({
+    title: "Valeur absolue",
+    value: n.toString(),
+    cls: "big",
+    icon: "🔢"
+  });
+
+  /* --- 2. Nombre de chiffres --- */
+  cards.push({
+    title: "Nombre de chiffres",
+    value: digitCount(n) + " chiffre" + (digitCount(n) > 1 ? "s" : ""),
+    cls: "green",
+    icon: "📏"
+  });
+
+  /* --- 3. Décomposition en base 10 --- */
+  const str = n.toString();
+  const decomp = [...str].map((d, i) => {
+    const power = str.length - 1 - i;
+    return power === 0 ? `${d}` : `${d}×10^${power}`;
+  }).join(" + ");
+  cards.push({
+    title: "Décomposition décimale",
+    value: decomp,
+    cls: "",
+    icon: "🔟",
+    big: true
+  });
+
+  /* --- 4. Parité --- */
+  const even = n % 2n === 0n;
+  cards.push({
+    title: "Parité",
+    value: even ? "PAIR" : "IMPAIR",
+    cls: even ? "green" : "violet",
+    icon: even ? "⚖️" : "⚡"
+  });
+
+  /* --- 5. Primalité --- */
+  const prime = isPrime(n);
+  cards.push({
+    title: "Primalité",
+    value: prime ? "PREMIER ✓" : "COMPOSÉ",
+    cls: prime ? "green" : "",
+    icon: prime ? "🏆" : "🧩"
+  });
+
+  /* --- 6. Factorisation --- */
+  if (n >= 2n && n < 10n ** 15n){
+    const factors = factorize(n);
+    const counts = {};
+    factors.forEach(f => counts[f.toString()] = (counts[f.toString()] || 0) + 1);
+    const factorStr = Object.entries(counts)
+      .map(([p, e]) => e > 1 ? `${p}^${e}` : p)
+      .join(" × ");
+    cards.push({
+      title: "Factorisation première",
+      value: factorStr || n.toString(),
+      cls: "violet",
+      icon: "🧮",
+      big: true
+    });
+  } else {
+    cards.push({
+      title: "Factorisation première",
+      value: "trop grand pour calcul exact",
+      cls: "",
+      icon: "🧮"
+    });
+  }
+
+  /* --- 7. Somme des chiffres --- */
+  const ds = digitSum(n);
+  cards.push({
+    title: "Somme des chiffres",
+    value: `${ds} (racine num. : ${digitalRoot(n)})`,
+    cls: "green",
+    icon: "➕"
+  });
+
+  /* --- 8. Diviseurs (petits nombres) --- */
+  if (n > 0n && n < 10n ** 10n){
+    const divs = divisors(n);
+    const count = divs.length;
+    const preview = divs.slice(0, 12).map(d => d.toString()).join(", ");
+    const more = count > 12 ? `, … (+${count - 12})` : "";
+    cards.push({
+      title: `Diviseurs (${count})`,
+      value: preview + more,
+      cls: "",
+      icon: "➗"
+    });
+  }
+
+  /* --- 9. Carré / Cube --- */
+  const sq = isPerfectSquare(n);
+  const cb = isPerfectCube(n);
+  cards.push({
+    title: "Carré / Cube parfait",
+    value: (sq ? `CARBÉ de ${sqrtBigInt(n)}` : "pas un carré") +
+           " / " +
+           (cb ? `CUBE de ${cbrtBigInt(n)}` : "pas un cube"),
+    cls: (sq || cb) ? "green" : "",
+    icon: "⬜"
+  });
+
+  /* --- 10. Fibonacci --- */
+  const fib = isFibonacci(n);
+  cards.push({
+    title: "Nombre de Fibonacci",
+    value: fib ? "OUI ✓" : "NON",
+    cls: fib ? "green" : "",
+    icon: "🌀"
+  });
+
+  /* --- 11. Palindrome --- */
+  const pal = isPalindrome(str);
+  cards.push({
+    title: "Palindrome",
+    value: pal ? "OUI ✓" : "NON",
+    cls: pal ? "green" : "",
+    icon: "🔄"
+  });
+
+  /* --- 12. Harshad --- */
+  const harshad = isHarshad(n);
+  cards.push({
+    title: "Nombre de Harshad",
+    value: harshad ? "OUI ✓ (divisible par somme)" : "NON",
+    cls: harshad ? "green" : "",
+    icon: "🎯"
+  });
+
+  /* --- 13. Bases --- */
+  cards.push({
+    title: "En base 2 (binaire)",
+    value: toBase(n, 2),
+    cls: "",
+    icon: "💻",
+    big: true
+  });
+  cards.push({
+    title: "En base 8 (octal)",
+    value: toBase(n, 8),
+    cls: "",
+    icon: "🔢"
+  });
+  cards.push({
+    title: "En base 16 (hexadécimal)",
+    value: "0x" + toBase(n, 16),
+    cls: "green",
+    icon: "🎨"
+  });
+  cards.push({
+    title: "En base 60 (babylonien)",
+    value: toBase(n, 60),
+    cls: "violet",
+    icon: "🏛️"
+  });
+
+  /* --- 14. Notation scientifique --- */
+  cards.push({
+    title: "Notation scientifique",
+    value: toScientific(n),
+    cls: "big",
+    icon: "🔬"
+  });
+
+  /* --- 15. Logarithme approché --- */
+  if (n > 0n && n < 10n ** 300n){
+    const ln = Math.log(Number(n));
+    cards.push({
+      title: "Log naturel (ln)",
+      value: ln.toFixed(6),
+      cls: "",
+      icon: "📈"
+    });
+  }
+
+  /* --- 16. Racine carrée --- */
+  cards.push({
+    title: "Racine carrée exacte",
+    value: isPerfectSquare(n) ? sqrtBigInt(n).toString() : "≈ " + Math.sqrt(Number(n)).toFixed(6),
+    cls: "green",
+    icon: "√"
+  });
+
+  /* --- 17. Factorielle approchée --- */
+  if (n > 0n && n <= 1000n){
+    const s = stirlingLog(n);
+    cards.push({
+      title: "log(n!) (Stirling)",
+      value: s.toFixed(4) + " ≈ n! ≈ 10^" + (s / Math.LN10).toFixed(2),
+      cls: "",
+      icon: "❗"
+    });
+  }
+
+  /* --- 18. Nombres amis / parfaits (petits) --- */
+  if (n > 0n && n < 10000n){
+    const isPerfect = isPerfectNumber(n);
+    if (isPerfect){
+      cards.push({
+        title: "Nombre parfait",
+        value: "OUI ✓",
+        cls: "green",
+        icon: "🌟"
+      });
+    }
+  }
+
+  /* --- Rendu --- */
+  grid.innerHTML = cards.map(c => `
+    <div class="math-card">
+      <div class="math-card-title">${c.icon} ${c.title}</div>
+      <div class="math-card-value ${c.cls || ""} ${c.big ? "big" : ""}">${c.value}</div>
+    </div>
+  `).join("");
+}
+
+function digitalRoot(n){
+  let s = digitSum(n);
+  while (s >= 10n) s = digitSum(s);
+  return s;
+}
+
+function isPerfectNumber(n){
+  if (n < 2n) return false;
+  const divs = divisors(n).filter(d => d < n);
+  const sum = divs.reduce((a, b) => a + b, 0n);
+  return sum === n;
+}
+
+/* ============================================================
+   DÉFINITION DES LANGUES
+   ============================================================ */
+const LANGUAGES = {
+  latin: {
+    name: "Latin", flag: "🔤", base: 26,
+    letters: "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+    examples: ["FINANCE","CHINA","HELLO","MONEY","BANK","EURO"],
+    normalize: c => c.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toUpperCase(),
+    isLetter: c => /[A-Z]/.test(c)
+  },
+  french: {
+    name: "Français", flag: "🇫🇷", base: 42,
+    letters: "ABCDEFGHIJKLMNOPQRSTUVWXYZÀÂÄÇÉÈÊËÎÏÔÖÙÛÜŸŒÆ",
+    examples: ["FRANCE","PARIS","MERCI","ARGENT"],
+    normalize: c => c.toUpperCase(),
+    isLetter: c => /[A-ZÀÂÄÇÉÈÊËÎÏÔÖÙÛÜŸŒÆ]/.test(c)
+  },
+  greek: {
+    name: "Grec", flag: "🇬🇷", base: 24,
+    letters: "ΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩ",
+    examples: ["ΕΛΛΑΔΑ","ΑΘΗΝΑ"],
+    normalize: c => c.toUpperCase()
+      .replace(/ς/g,"Σ").replace(/ά/g,"Α").replace(/έ/g,"Ε").replace(/ή/g,"Η")
+      .replace(/ί/g,"Ι").replace(/ό/g,"Ο").replace(/ύ/g,"Υ").replace(/ώ/g,"Ω"),
+    isLetter: c => /[Α-Ω]/.test(c)
+  },
+  hebrew: {
+    name: "Hébreu", flag: "🇮🇱", base: 22,
+    letters: "אבגדהוזחטיכלמנסעפצקרשת",
+    examples: ["שלום","ישראל"],
+    normalize: c => c.replace(/[\u0591-\u05C7]/g,"")
+      .replace(/ך/g,"כ").replace(/ם/g,"מ").replace(/ן/g,"נ")
+      .replace(/ף/g,"פ").replace(/ץ/g,"צ"),
+    isLetter: c => /[\u05D0-\u05EA]/.test(c)
+  },
+  arabic: {
+    name: "Arabe", flag: "🇸🇦", base: 28,
+    letters: "ابتثجحخدذرزسشصضطظعغفقكلمنهوي",
+    examples: ["مرحبا","سلام"],
+    normalize: c => c.normalize("NFD")
+      .replace(/[\u064B-\u065F\u0670]/g,"")
+      .replace(/[إأآا]/g,"ا").replace(/ى/g,"ي").replace(/ة/g,"ه")
+      .replace(/ؤ/g,"و").replace(/ئ/g,"ي"),
+    isLetter: c => /[\u0621-\u064A]/.test(c)
+  },
+  japanese: {
+    name: "Japonais", flag: "🇯🇵", base: 46,
+    letters: "あいうえおかきくけこさしすせそたちつてとなにぬねのはひふへほまみむめもやゆよらりるれろわをん",
+    examples: ["こんにちは","ありがとう"],
+    normalize: c => c,
+    isLetter: c => /[\u3041-\u3096]/.test(c)
+  },
+  cyrillic: {
+    name: "Cyrillique", flag: "🇷🇺", base: 33,
+    letters: "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ",
+    examples: ["ПРИВЕТ","РОССИЯ","МОСКВА"],
+    normalize: c => c.toUpperCase(),
+    isLetter: c => /[А-ЯЁ]/.test(c)
+  }
+};
+
+function wordToBigInt(word, langKey){
+  const a = LANGUAGES[langKey];
+  const letters = [...word].map(c => a.normalize(c)).filter(c => a.isLetter(c));
+  if (!letters.length) return null;
+  let n = 0n;
+  const base = BigInt(a.base);
+  for (const ch of letters){
+    const idx = a.letters.indexOf(ch);
+    if (idx === -1) continue;
+    n = n * base + BigInt(idx + 1);
+  }
+  return n;
+}
+
+/* ============================================================
+   SYSTÈMES DE NUMÉRATION AFFICHÉS
+   ============================================================ */
+const NUM_SYSTEMS = [
+  { key:"latin",      name:"Latin",              flag:"🔤", sys:"Chiffres romains",          fn:toRoman,             css:"roman" },
+  { key:"french",     name:"Français",           flag:"🇫🇷", sys:"Chiffres arabes (espace)",   fn:n => fmtLocale(n," "), css:"decimal" },
+  { key:"german",     name:"Allemand",           flag:"🇩🇪", sys:"Chiffres arabes (point)",    fn:n => fmtLocale(n,"."), css:"decimal" },
+  { key:"spanish",    name:"Espagnol",           flag:"🇪🇸", sys:"Chiffres arabes (point)",    fn:n => fmtLocale(n,"."), css:"decimal" },
+  { key:"italian",    name:"Italien",            flag:"🇮🇹", sys:"Chiffres arabes (point)",    fn:n => fmtLocale(n,"."), css:"decimal" },
+  { key:"portuguese", name:"Portugais",          flag:"🇵🇹", sys:"Chiffres arabes (point)",    fn:n => fmtLocale(n,"."), css:"decimal" },
+  { key:"greek",      name:"Grec",               flag:"🇬🇷", sys:"Numération attique/milesienne", fn:toGreek,          css:"greek-val" },
+  { key:"hebrew",     name:"Hébreu",             flag:"🇮🇱", sys:"Gematria",                   fn:toHebrew,            css:"hebrew-val rtl" },
+  { key:"arabic",     name:"Arabe",              flag:"🇸🇦", sys:"Chiffres indo-arabes orientaux", fn:toArabic,        css:"rtl" },
+  { key:"japanese",   name:"Japonais",           flag:"🇯🇵", sys:"Kanji (万 千 百 十)",        fn:toJapanese,          css:"jp-val" },
+  { key:"chinese",    name:"Chinois financier",  flag:"🇨🇳", sys:"大写数字 financier",         fn:toChineseFinancial,  css:"zh-val", zh:true },
+  { key:"cyrillic",   name:"Cyrillique",         flag:"🇷🇺", sys:"Numération slave (Ѳ, Ѱ, Ѡ)", fn:toCyrillicNumber,    css:"greek-val" },
+  { key:"hindi",      name:"Hindi",              flag:"🇮🇳", sys:"Chiffres devanagari",        fn:toDevanagari,        css:"decimal" },
+  { key:"polish",     name:"Polonais",           flag:"🇵🇱", sys:"Chiffres arabes (espace)",   fn:n => fmtLocale(n," "), css:"decimal" },
+  { key:"czech",      name:"Tchèque",            flag:"🇨🇿", sys:"Chiffres arabes (espace)",   fn:n => fmtLocale(n," "), css:"decimal" },
+  { key:"turkish",    name:"Turc",               flag:"🇹🇷", sys:"Chiffres arabes (point)",    fn:n => fmtLocale(n,"."), css:"decimal" },
+  { key:"romanian",   name:"Roumain",            flag:"🇷🇴", sys:"Chiffres arabes (point)",    fn:n => fmtLocale(n,"."), css:"decimal" },
+  { key:"hungarian",  name:"Hongrois",           flag:"🇭🇺", sys:"Chiffres arabes (espace)",   fn:n => fmtLocale(n," "), css:"decimal" },
+  { key:"swedish",    name:"Suédois",            flag:"🇸🇪", sys:"Chiffres arabes (espace)",   fn:n => fmtLocale(n," "), css:"decimal" },
+  { key:"danish",     name:"Danois/Norvégien",   flag:"🇩🇰", sys:"Chiffres arabes (point)",    fn:n => fmtLocale(n,"."), css:"decimal" },
+  { key:"finnish",    name:"Finnois",            flag:"🇫🇮", sys:"Chiffres arabes (espace)",   fn:n => fmtLocale(n," "), css:"decimal" }
+];
+
+/* ============================================================
+   UI
+   ============================================================ */
+const $ = id => document.getElementById(id);
+
+const input        = $("input");
+const resultsEl    = $("results");
+const sourceSelect = $("sourceSelect");
+const langSelector = $("langSelector");
+const inputLabel   = $("inputLabel");
+const countEl      = $("count");
+const pipeSource   = $("pipeSource");
+const pipeBase     = $("pipeBase");
+const pipeNum      = $("pipeNum");
+const toastEl      = $("toast");
+const optSpaces    = $("optSpaces");
+const optOnlyUsed  = $("optOnlyUsed");
+const optMath      = $("optMath");
+const mathSection  = $("mathSection");
+const modeTabs     = document.querySelectorAll(".mode-tab");
+
+let mode = "number";
+let sourceLang = "latin";
+
+Object.entries(LANGUAGES).forEach(([key, a]) => {
+  const opt = document.createElement("option");
+  opt.value = key;
+  opt.textContent = `${a.flag} ${a.name}`;
+  sourceSelect.appendChild(opt);
+});
+sourceSelect.value = "latin";
+
+let toastTimer;
+function toast(msg, type = "ok"){
+  toastEl.textContent = msg;
+  toastEl.className = "toast show " + type;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => toastEl.classList.remove("show"), 2000);
+}
+
+const cards = {};
+function buildCards(){
+  resultsEl.innerHTML = "";
+  NUM_SYSTEMS.forEach(s => {
+    const card = document.createElement("div");
+    card.className = "result-card" + (s.zh ? " zh" : "");
+    card.dataset.key = s.key;
+    card.innerHTML = `
+      <div class="card-head">
+        <span class="card-flag">${s.flag}</span>
+        <span class="card-title">${s.name}</span>
+      </div>
+      <div class="card-system">${s.sys}</div>
+      <div class="card-value ${s.css}" id="out_${s.key}">—</div>
+      <div class="card-actions">
+        <button class="card-btn" data-copy="out_${s.key}">📋 Copier</button>
+      </div>
+    `;
+    resultsEl.appendChild(card);
+    cards[s.key] = card;
+  });
+}
+
+modeTabs.forEach(tab => {
+  tab.addEventListener("click", () => {
+    if (tab.classList.contains("active")) return;
+    modeTabs.forEach(t => t.classList.remove("active"));
+    tab.classList.add("active");
+    mode = tab.dataset.mode;
+    if (mode === "number"){
+      langSelector.style.display = "none";
+      inputLabel.textContent = "🔢 Entrez un nombre (chiffres arabes)";
+      input.placeholder = "Ex : 5211815";
+      input.className = "numeric";
+    } else {
+      langSelector.style.display = "flex";
+      const a = LANGUAGES[sourceLang];
+      inputLabel.textContent = `${a.flag} Entrée ${a.name.toLowerCase()}`;
+      input.placeholder = "Ex : " + a.examples[0];
+      input.className = (sourceLang === "arabic" || sourceLang === "hebrew") ? "rtl" : "";
+    }
+    input.value = "";
+    render();
+    input.focus();
+    toast(mode === "number" ? "🔢 Mode nombre" : "🔤 Mode mot");
+  });
+});
+
+sourceSelect.addEventListener("change", () => {
+  sourceLang = sourceSelect.value;
+  const a = LANGUAGES[sourceLang];
+  inputLabel.textContent = `${a.flag} Entrée ${a.name.toLowerCase()}`;
+  input.placeholder = "Ex : " + a.examples[0];
+  input.value = "";
+  input.className = (sourceLang === "arabic" || sourceLang === "hebrew") ? "rtl" : "";
+  render();
+  toast(`${a.flag} ${a.name}`);
+});
+
+function render(){
+  const raw = input.value.trim();
+
+  Object.values(cards).forEach(card => {
+    const val = card.querySelector(".card-value");
+    val.textContent = "—";
+    card.classList.remove("source");
+    card.classList.add("empty");
+  });
+
+  let n = null;
+  let sourceLabel = "—";
+  let baseLabel = "—";
+
+  if (mode === "number"){
+    const digits = raw.replace(/[\s.,]/g, "").replace(/[^\d]/g, "");
+    countEl.textContent = digits.length + " chiffre" + (digits.length > 1 ? "s" : "");
+    if (!digits.length){
+      pipeNum.textContent = "—";
+      pipeSource.textContent = "Nombre";
+      pipeBase.textContent = "10";
+      renderMath(null);
+      Object.values(cards).forEach(c => {
+        c.style.display = optOnlyUsed.checked ? "none" : "";
+      });
+      return;
+    }
+    n = BigInt(digits);
+    sourceLabel = "Nombre";
+    baseLabel = "10";
+  } else {
+    const a = LANGUAGES[sourceLang];
+    const letters = [...raw].map(c => a.normalize(c)).filter(c => a.isLetter(c));
+    countEl.textContent = letters.length + " caractère" + (letters.length > 1 ? "s" : "");
+    if (!letters.length){
+      pipeNum.textContent = "—";
+      pipeSource.textContent = a.name;
+      pipeBase.textContent = a.base;
+      renderMath(null);
+      Object.values(cards).forEach(c => {
+        c.style.display = optOnlyUsed.checked ? "none" : "";
+      });
+      return;
+    }
+    const word = letters.join("");
+    n = wordToBigInt(word, sourceLang);
+    sourceLabel = a.name;
+    baseLabel = a.base;
+  }
+
+  if (n === null){
+    pipeNum.textContent = "—";
+    pipeSource.textContent = sourceLabel;
+    pipeBase.textContent = baseLabel;
+    renderMath(null);
+    return;
+  }
+
+  if (mode === "word" && cards[sourceLang]){
+    cards[sourceLang].classList.add("source");
+  }
+
+  NUM_SYSTEMS.forEach(s => {
+    const card = cards[s.key];
+    const val = card.querySelector(".card-value");
+    try {
+      const str = s.fn(n);
+      val.textContent = str;
+      card.classList.remove("empty");
+    } catch (err){
+      console.error("Erreur " + s.key + ":", err);
+      val.textContent = "—";
+      card.classList.add("empty");
+    }
+  });
+
+  pipeSource.textContent = sourceLabel;
+  pipeBase.textContent = baseLabel;
+  pipeNum.textContent = optSpaces.checked
+    ? n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ")
+    : n.toString();
+
+  Object.values(cards).forEach(c => {
+    c.style.display = optOnlyUsed.checked && c.classList.contains("empty") ? "none" : "";
+  });
+
+  // Analyse mathématique
+  if (optMath.checked){
+    mathSection.style.display = "block";
+    renderMath(n);
+  } else {
+    mathSection.style.display = "none";
+  }
+}
+
+input.addEventListener("input", render);
+[optSpaces, optOnlyUsed, optMath].forEach(el => el.addEventListener("change", render));
+
+$("btnPaste").addEventListener("click", async () => {
+  try { input.value = await navigator.clipboard.readText(); render(); }
+  catch { toast("⚠️ Presse-papier inaccessible", "err"); }
+});
+
+$("btnExample").addEventListener("click", () => {
+  if (mode === "number"){
+    const examples = ["5211815", "102559", "388599827", "1234567890", "42", "777", "2024", "100", "1024", "9999"];
+    const n = examples[Math.floor(Math.random()*examples.length)];
+    input.value = n;
+    render();
+    toast("✨ " + n);
+  } else {
+    const a = LANGUAGES[sourceLang];
+    const w = a.examples[Math.floor(Math.random()*a.examples.length)];
+    input.value = w;
+    render();
+    toast("✨ " + w);
+  }
+});
+
+$("btnClear").addEventListener("click", () => {
+  input.value = ""; input.focus(); render();
+});
+
+document.addEventListener("click", async e => {
+  if (!e.target.classList.contains("card-btn")) return;
+  const id = e.target.dataset.copy;
+  const text = $(id).textContent;
+  if (!text || text === "—"){ toast("Rien à copier", "err"); return; }
+  try {
+    await navigator.clipboard.writeText(text);
+    toast("✅ Copié");
+  } catch { toast("⚠️ Copie impossible", "err"); }
+});
+
+function forceClear(){ input.value = ""; render(); }
+window.addEventListener("load", forceClear);
+window.addEventListener("pageshow", e => { if (e.persisted) forceClear(); });
+setTimeout(forceClear, 50);
+
+buildCards();
+input.className = "numeric";
+render();
+</script>
+</body>
+</html>

@@ -208,6 +208,104 @@ Unités : `拾` (10), `佰` (100), `仟` (1000), `万` (10⁴), `亿` (10⁸), `
 
 ---
 
+## 🧮 Analyse mathématique
+
+### 🔬 22 propriétés calculées automatiquement
+
+| # | Propriété | Description |
+|---|-----------|-------------|
+| 1 | Valeur absolue | Le nombre lui-même |
+| 2 | Nombre de chiffres | Comptage en base 10 |
+| 3 | Décomposition décimale | Somme des puissances de 10 |
+| 4 | Parité | PAIR / IMPAIR |
+| 5 | Primalité | Test de Miller-Rabin |
+| 6 | Factorisation première | Trial division + Pollard rho |
+| 7 | Somme des chiffres | Et racine numérique |
+| 8 | Diviseurs | Liste complète + nombre |
+| 9 | Carré parfait | Racine entière exacte |
+| 10 | Cube parfait | Racine cubique exacte |
+| 11 | Fibonacci | Test par 5n² ± 4 |
+| 12 | Palindrome | Lecture identique avant/arrière |
+| 13 | Nombre de Harshad | Divisible par somme des chiffres |
+| 14 | Base 2 | Binaire |
+| 15 | Base 8 | Octal |
+| 16 | Base 16 | Hexadécimal |
+| 17 | Base 60 | Babyloniens (notation 24:7:43:35) |
+| 18 | Notation scientifique | m × 10^n |
+| 19 | Log naturel | ln(n) |
+| 20 | Racine carrée | Exacte ou approchée |
+| 21 | log(n!) Stirling | Approximation factorielle |
+| 22 | Nombre parfait | Somme de ses diviseurs propres |
+
+### 🎓 Algorithmes clés
+
+**Miller-Rabin** : test de primalité probabiliste déterministe pour n < 3.3 × 10²⁴. Utilise 12 témoins, complexité O(k × log³n).
+
+**Pollard rho** : factorisation par cycle de Floyd, complexité O(n^(1/4)) en pire cas.
+
+**Newton (BigInt)** : racine carrée par convergence quadratique en ~log(n) itérations.
+
+---
+
+## 🔐 Cryptographie
+
+### 🎯 Vue d'ensemble
+
+| Catégorie | Algorithmes |
+|-----------|-------------|
+| Hachages classiques | djb2, sdbm, FNV-1a, djb2-64, CRC32 |
+| Hachages cryptographiques | MD5, SHA-1, SHA-256, SHA-512, SHA-3 |
+| Signatures | HMAC-SHA256 |
+| Aléatoire | UUID v4 (RFC 4122) |
+| Encodages | Hex, Base64, Binaire |
+| Chiffrements | César, ROT13, Vigenère, Atbash, XOR, Bacon |
+| Vérifications | Déterminisme, effet d'avalanche |
+
+### 📜 MD5 (RFC 1321)
+
+Empreinte 128 bits. Vecteurs de test :
+- md5("") = d41d8cd98f00b204e9800998ecf8427e
+- md5("hello") = 5d41402abc4b2a76b9719d911017c592
+- md5("The quick brown fox jumps over the lazy dog") = 9e107d9d372bb6826bd81d3542a419d6
+
+⚠️ MD5 est cassé cryptographiquement.
+
+### 🌊 SHA-3 (Keccak-256)
+
+Construction éponge, état 1600 bits, 24 rondes. Vecteurs de test :
+- keccak256("") = c5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470
+- keccak256("hello") = 1c8aff950685c2ed4bc3174f3472287b56d9517b9c948127319a09a7a36deac8
+
+### 🔐 SHA-1 / SHA-256 / SHA-512 (Web Crypto)
+
+Utilise `crypto.subtle.digest()`. Vecteurs de test pour "" :
+- SHA-1 = da39a3ee5e6b4b0d3255bfef95601890afd80709
+- SHA-256 = e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+
+### 🔑 HMAC-SHA256 (RFC 2104)
+
+Formule : HMAC(K, m) = H((K ⊕ opad) || H((K ⊕ ipad) || m)).
+
+### 🎲 UUID v4 (RFC 4122)
+
+128 bits aléatoires, version 4 forcée sur le 7ᵉ octet, variante RFC sur le 9ᵉ.
+
+### 📊 Effet d'avalanche
+
+Test automatique : SHA-256(n) vs SHA-256(n+1). Résultat mesuré : 127/256 bits changés = 49.6% (excellent).
+
+### 🏛️ Chiffrements historiques
+
+| Chiffrement | Époque | Exemple EURO → |
+|-------------|--------|----------------|
+| César +3 | 58 av. J.-C. | HXUR |
+| ROT13 | Moderne | RHOB |
+| Vigenère (KEY) | 1553 | OYCK |
+| Atbash | Antiquité | VFIL |
+| XOR (0x5A) | Moderne | 6f686b6b626b6f |
+| Bacon | 1605 | AABBABAB… |
+
+---
 
 
 <div align="center">

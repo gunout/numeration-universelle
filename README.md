@@ -11,10 +11,10 @@
 [![Zero Dependencies](https://img.shields.io/badge/dependencies-0-ED2939?style=for-the-badge)]()
 [![Single File](https://img.shields.io/badge/single%20file-60%20KB-d4af37?style=for-the-badge)]()
 
-[![Stars](https://img.shields.io/github/stars/USER/REPO?style=for-the-badge&logo=github&color=ed2939)](https://github.com/USER/REPO/stargazers)
-[![Forks](https://img.shields.io/github/forks/USER/REPO?style=for-the-badge&logo=github&color=002395)](https://github.com/USER/REPO/network)
-[![Issues](https://img.shields.io/github/issues/USER/REPO?style=for-the-badge&logo=github&color=d4af37)](https://github.com/USER/REPO/issues)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-16a34a?style=for-the-badge&logo=github)](https://github.com/USER/REPO/pulls)
+[![Stars](https://img.shields.io/github/stars/gunout/numeration-universelle?style=for-the-badge&logo=github&color=ed2939)](https://github.com/gunout/numeration-universelle/stargazers)
+[![Forks](https://img.shields.io/github/forks/gunout/numeration-universelle?style=for-the-badge&logo=github&color=002395)](https://github.com/gunout/numeration-universelle/network)
+[![Issues](https://img.shields.io/github/issues/gunout/numeration-universelle?style=for-the-badge&logo=github&color=d4af37)](https://github.com/gunout/numeration-universelle/issues)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-16a34a?style=for-the-badge&logo=github)](https://github.com/gunout/numeration-universelle/pulls)
 
 **Un dashboard web autonome qui transforme n'importe quel nombre ou mot en 21 systèmes de numération historiques du monde, dévoile son analyse mathématique complète et calcule 20+ empreintes cryptographiques vérifiées.**
 
@@ -306,21 +306,22 @@ Test automatique : SHA-256(n) vs SHA-256(n+1). Résultat mesuré : 127/256 bits 
 | Bacon | 1605 | AABBABAB… |
 
 ---
+
 ## 🚀 Installation
 
 ### 📦 Option 1 — Téléchargement direct
 
 Télécharger le fichier `index.html` depuis le dépôt et l'ouvrir dans un navigateur :
 
-    curl -O https://raw.githubusercontent.com/USER/REPO/main/index.html
+    curl -O https://raw.githubusercontent.com/gunout/numeration-universelle/main/index.html
     open index.html        # macOS
     xdg-open index.html    # Linux
     start index.html       # Windows
 
 ### 🌐 Option 2 — Cloner le dépôt
 
-    git clone https://github.com/USER/REPO.git
-    cd REPO
+    git clone https://github.com/gunout/numeration-universelle.git
+    cd numeration-universelle
 
 Puis ouvrir `index.html` dans un navigateur.
 
@@ -547,7 +548,7 @@ Les contributions sont **chaleureusement bienvenues** !
 
 ### 🐛 Signaler un bug
 
-Ouvrir une issue avec :
+Ouvrir une [issue](https://github.com/gunout/numeration-universelle/issues) avec :
 
 - Description du problème
 - Étapes de reproduction
@@ -556,7 +557,7 @@ Ouvrir une issue avec :
 
 ### 💡 Proposer une fonctionnalité
 
-Ouvrir une issue avec :
+Ouvrir une [issue](https://github.com/gunout/numeration-universelle/issues) avec :
 
 - Description de la fonctionnalité
 - Cas d'usage
@@ -568,7 +569,7 @@ Ouvrir une issue avec :
 
 MIT License
 
-Copyright (c) 2025 gunout
+Copyright (c) 2026 Gunout
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -592,11 +593,11 @@ SOFTWARE.
 
 ## 👤 Auteur
 
-**Votre Nom**
+**Gunout**
 
-- GitHub : https://github.com/USER
-- LinkedIn : https://linkedin.com/in/USER
-- Email : email@example.com
+- GitHub : https://github.com/gunout
+- Dépôt : https://github.com/gunout/numeration-universelle
+- Issues : https://github.com/gunout/numeration-universelle/issues
 
 ---
 
@@ -615,18 +616,5 @@ SOFTWARE.
 
 **Fait avec ❤️ et beaucoup de ☕ en France 🇫🇷**
 
-</div>
-
 ---
 
-<div align="center">
-
-### 🇫🇷 Gunout · 2026
-
-![Made in France](https://img.shields.io/badge/Made_in-France-002395?style=flat-square&labelColor=FFFFFF&logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA5MDAgNjAwIj48cmVjdCB3aWR0aD0iOTAwIiBoZWlnaHQ9IjYwMCIgZmlsbD0iIzAwMjM5NSIvPjxyZWN0IHdpZHRoPSI5MDAiIGhlaWdodD0iNDAwIiB5PSIxMDAiIGZpbGw9IiNmZmYiLz48cmVjdCB3aWR0aD0iOTAwIiBoZWlnaHQ9IjIwMCIgeT0iNDAwIiBmaWxsPSIjZWQyOTM5Ii8+PC9zdmc+)
-![GitHub](https://img.shields.io/badge/GitHub-gunout-181717?style=flat-square&logo=github&logoColor=white)
-![Year](https://img.shields.io/badge/2026-ED2939?style=flat-square&labelColor=FFFFFF)
-
-<sub>© 2026 <strong>Gunout</strong> — Tous droits réservés.</sub>
-
-</div>
